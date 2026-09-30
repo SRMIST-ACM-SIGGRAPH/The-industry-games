@@ -10,10 +10,10 @@ This document outlines the requirements and feature list for the Hunger Games th
 
 ## 2. Authentication
 - Login/Signup is strictly restricted to `@srmist.edu.in` email addresses.
-- **Magic Link / OTP via Email**: Authentication is handled via an email OTP code (Logic mapped from `club-website` project - `supabase.auth.signInWithOtp`).
+- **Magic Link / OTP via Email**: Authentication is handled via an email OTP code (`supabase.auth.signInWithOtp`).
 
 ## 3. Post-Login Flow & Registration
-- Users must fill in their basic details upon first login.
+- **First Login Profile Completion**: On their very first login, a user must fill in their basic profile details before they can access the dashboard.
 - Users can either:
   - **Create a team** (generates a unique team code).
   - **Join a team** (via a provided unique team code).
