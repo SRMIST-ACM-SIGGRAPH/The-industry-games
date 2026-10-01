@@ -4,6 +4,8 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, TorusKnot } from '@react-three/drei';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import CountdownTimer from '@/components/CountdownTimer';
+import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 
 const problemStatements = [
   { id: 1, title: 'Resource Scarcity Simulator', desc: 'Build an AI model that optimally distributes limited food and supplies across 12 distinct districts, minimizing starvation while prioritizing capital tribute.' },
@@ -24,7 +26,7 @@ const timeline = [
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef });
-  
+
   const yBg = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   return (
@@ -41,28 +43,40 @@ export default function Home() {
             <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
           </Canvas>
         </div>
-        
+
         <div style={{
           position: 'absolute', inset: 0, zIndex: 10,
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           background: 'radial-gradient(circle at center, transparent 0%, var(--background) 100%)',
-          textAlign: 'center'
+          textAlign: 'center',
+          padding: '0 1.5rem'
         }}>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            style={{ fontSize: '5rem', color: 'var(--accent-gold)', marginBottom: '1rem' }}
+            className="hero__title"
+            style={{ color: 'var(--accent-gold)', marginBottom: '1rem' }}
           >
             May The Code Be<br/>Ever In Your Favor
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }}
             style={{ fontSize: '1.5rem', maxWidth: '600px' }}
           >
             Welcome to the 75th Annual Industry Games. Form your alliances, prepare your algorithms, and fight for survival in the ultimate coding arena.
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 1 }}
+            style={{ marginTop: '2.5rem' }}
+          >
+            <CountdownTimer
+              deadline={EVENT_DEADLINE}
+              variant="hero"
+              label={EVENT_DEADLINE_LABEL}
+            />
+          </motion.div>
         </div>
       </section>
 
@@ -71,7 +85,7 @@ export default function Home() {
         <h2 style={{ fontSize: '3rem', color: 'var(--accent-red)', textAlign: 'center', marginBottom: '4rem' }}>The Schedule</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
           {timeline.map((item, idx) => (
-            <motion.div 
+            <motion.div
               key={idx}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -97,7 +111,7 @@ export default function Home() {
         <h2 style={{ fontSize: '3rem', color: 'var(--accent-gold)', textAlign: 'center', marginBottom: '4rem' }}>Problem Statements</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {problemStatements.map((prob, idx) => (
-            <motion.div 
+            <motion.div
               key={prob.id}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}

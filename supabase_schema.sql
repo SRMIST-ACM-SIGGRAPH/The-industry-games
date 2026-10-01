@@ -10,6 +10,20 @@ CREATE TABLE public.users (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Profiles Table  (Pod 2 / Issue #3 — First-Login Onboarding)
+-- One row per authenticated tribute, created the first time they complete the
+-- onboarding form. The /dashboard route stays gated until a COMPLETE row
+-- exists here (see src/lib/profile.ts -> isProfileComplete).
+CREATE TABLE public.profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  registration_number TEXT NOT NULL,
+  department TEXT NOT NULL,
+  phone_number TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Teams Table
 CREATE TABLE public.teams (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -44,12 +58,20 @@ CREATE TABLE public.announcements (
 
 -- Enable RLS
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own data and update it
 CREATE POLICY "Users can read own data" ON public.users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own data" ON public.users FOR UPDATE USING (auth.uid() = id);
+
+-- Profiles: a tribute may only read, create, and update THEIR OWN profile row.
+-- INSERT is required for first-login onboarding; the WITH CHECK clause forbids
+-- writing a row for anyone else's id.
+CREATE POLICY "Users can read own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
 -- Teams can be read by their members
 CREATE POLICY "Team members can view their team" ON public.teams FOR SELECT USING (
