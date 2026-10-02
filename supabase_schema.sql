@@ -1,3 +1,6 @@
+-- Set the database timezone to IST (Indian Standard Time)
+ALTER DATABASE postgres SET timezone TO 'Asia/Kolkata';
+
 -- Users Table
 CREATE TABLE public.users (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
@@ -11,15 +14,19 @@ CREATE TABLE public.users (
 );
 
 -- Profiles Table  (Pod 2 / Issue #3 — First-Login Onboarding)
--- One row per authenticated tribute, created the first time they complete the
+-- One row per authenticated tribute (User), created on first login when they complete the
 -- onboarding form. The /dashboard route stays gated until a COMPLETE row
 -- exists here (see src/lib/profile.ts -> isProfileComplete).
 CREATE TABLE public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT NOT NULL,
+  college_email TEXT NOT NULL,
   registration_number TEXT NOT NULL,
   department TEXT NOT NULL,
+  academic_year TEXT NOT NULL,
   phone_number TEXT NOT NULL,
+  github_url TEXT NOT NULL,
+  linkedin_url TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
