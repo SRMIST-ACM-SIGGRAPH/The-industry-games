@@ -31,7 +31,9 @@ export default function Dashboard() {
         name: teamData.name,
         teamCode: teamData.team_code,
         paymentStatus: teamData.payment_status,
+        paymentProofUrl: teamData.payment_proof_url,
         submissionReady: !!teamData.submission_url,
+        submissionUrl: teamData.submission_url,
         isSubmitted: teamData.is_submitted,
         members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
       });
@@ -85,7 +87,9 @@ export default function Dashboard() {
             name: teamData.name,
             teamCode: teamData.team_code,
             paymentStatus: teamData.payment_status,
+            paymentProofUrl: teamData.payment_proof_url,
             submissionReady: !!teamData.submission_url,
+            submissionUrl: teamData.submission_url,
             isSubmitted: teamData.is_submitted,
             members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
           };
