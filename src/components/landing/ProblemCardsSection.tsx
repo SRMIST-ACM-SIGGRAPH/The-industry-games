@@ -5,34 +5,29 @@ import ProblemCard, { ProblemStatement } from './ProblemCard';
 
 export const PROBLEM_STATEMENTS: ProblemStatement[] = [
   {
-    id: 1,
-    title: 'Resource Scarcity Simulator',
-    desc: 'Build an AI model that optimally distributes limited food and supplies across 12 distinct districts, minimizing starvation while prioritizing capital tribute.',
-  },
-  {
     id: 2,
-    title: 'Tracker Jacker Drone Protocol',
-    desc: 'Design an autonomous swarm algorithm for drones to map heavily forested terrain without relying on GPS, mimicking the erratic but coordinated flight of tracker jackers.',
+    title: 'District 02: Project Portfolio Management & Risk Monitoring Platform',
+    desc: 'Develop a Project Portfolio Management (PPM) platform for a fire and rescue organization to manage multiple projects, track their progress, identify risks, and provide management with a consolidated view of portfolio performance.',
   },
   {
     id: 3,
-    title: 'Arena Weather Manipulation',
-    desc: 'Develop a fast-running fluid dynamics simulation capable of rendering sudden extreme weather events (fireballs, floods, acid fog) in real-time.',
+    title: 'District 03: AI-Powered Lead Generation & Sales Automation Platform',
+    desc: 'Develop an AI-powered sales intelligence and lead automation platform that can identify potential customers, research companies, qualify leads, prepare personalized outreach, and track opportunities.',
   },
   {
     id: 4,
-    title: 'Tribute Biometric Monitoring',
-    desc: 'Create a low-latency dashboard that visualizes heart rate, adrenaline, and injury data from 24 combatants simultaneously over a lossy network connection.',
+    title: 'District 04: AI-Native Education OS for Intelligent Doubt Resolution',
+    desc: 'Build an AI-powered education platform that helps students receive the right assistance for their doubts at the right time using AI explanations, practice, or relevant human teachers.',
   },
   {
     id: 5,
-    title: 'Sponsor Favor Matching System',
-    desc: 'Implement a marketplace matchmaking algorithm that connects wealthy sponsors with tributes in real-time, optimizing for maximum audience engagement.',
+    title: 'District 05: AI-Native EMR for Intelligent Clinical Assistance',
+    desc: 'Develop an AI-powered Electronic Medical Record platform that helps healthcare professionals capture, organize, understand, and retrieve patient information efficiently.',
   },
   {
     id: 6,
-    title: 'Forcefield Breach Detection',
-    desc: 'Write a computer vision script to instantly detect and localize micro-fractures in an invisible energetic barrier based on subtle light refraction patterns.',
+    title: 'District 06: Intelligent Business Operations & Customer Engagement',
+    desc: 'Build a smart and scalable business management platform that intelligently leverages organizational and customer data to streamline operations, automate routine processes, and identify actionable business opportunities.',
   },
 ];
 

@@ -12,6 +12,7 @@ import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
 import ProblemStatements from '@/components/dashboard/ProblemStatements';
+import { Github, Linkedin } from 'lucide-react';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function Dashboard() {
         name: teamData.name,
         teamCode: teamData.team_code,
         paymentStatus: teamData.payment_status,
-        submissionReady: !!teamData.submission_url,
+        submissionReady: !!(teamData.submission_url && teamData.problem_statement),
         submissionUrl: teamData.submission_url,
         isSubmitted: teamData.is_submitted,
         problemStatement: teamData.problem_statement,
@@ -89,7 +90,7 @@ export default function Dashboard() {
             name: teamData.name,
             teamCode: teamData.team_code,
             paymentStatus: teamData.payment_status,
-            submissionReady: !!teamData.submission_url,
+            submissionReady: !!(teamData.submission_url && teamData.problem_statement),
             submissionUrl: teamData.submission_url,
             isSubmitted: teamData.is_submitted,
             problemStatement: teamData.problem_statement,
@@ -149,7 +150,7 @@ export default function Dashboard() {
           </p>
         </div>
         <button onClick={handleLogout} className="btn btn-danger">
-          Sign Out / Disconnect
+          Sign out
         </button>
       </header>
 
@@ -191,23 +192,15 @@ export default function Dashboard() {
               <dt>Email</dt>
               <dd>{profile?.college_email || user?.email}</dd>
             </div>
-            <div>
-              <dt>GitHub</dt>
-              <dd>
-                <a href={profile?.github_url} target="_blank" rel="noopener noreferrer">
-                  Profile
-                </a>
-              </dd>
-            </div>
-            <div>
-              <dt>LinkedIn</dt>
-              <dd>
-                <a href={profile?.linkedin_url} target="_blank" rel="noopener noreferrer">
-                  Profile
-                </a>
-              </dd>
-            </div>
           </dl>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+            <a href={profile?.github_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+              <Github size={18} /> GitHub
+            </a>
+            <a href={profile?.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+              <Linkedin size={18} /> LinkedIn
+            </a>
+          </div>
         </motion.section>
 
         {/* Alliance / team status */}

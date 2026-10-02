@@ -36,17 +36,19 @@ export default function Navbar() {
       top: 0,
       left: 0,
       right: 0,
-      padding: '1.5rem 2rem',
+      padding: '1rem 2rem',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      zIndex: 100,
-      background: 'linear-gradient(to bottom, rgba(10, 10, 10, 0.9), transparent)',
-      borderBottom: '1px solid rgba(212, 175, 55, 0.1)'
+      zIndex: 1000,
+      background: 'rgba(10, 10, 10, 0.95)',
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid rgba(212, 175, 55, 0.2)'
     }}>
       <div>
-        <Link href="/">
-          <h2 style={{ fontSize: '1.5rem', color: 'var(--accent-gold)' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src="/mockingjay-logo.jpg" alt="Logo" style={{ height: '40px', width: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+          <h2 style={{ fontSize: '1.5rem', color: 'var(--accent-gold)', margin: 0 }}>
             The Industry Games
           </h2>
         </Link>
@@ -73,7 +75,7 @@ export default function Navbar() {
           </Link>
         ) : (
           <Link href="/login" className="btn btn-primary">
-            Enter Arena
+            Register
           </Link>
         )}
       </div>

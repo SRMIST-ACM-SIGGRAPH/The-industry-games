@@ -58,6 +58,12 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 2rem;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
@@ -97,6 +103,18 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
   font-size: 1rem;
   transition: border-color 0.3s;
+}
+
+@media (max-width: 768px) {
+  .input-field {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+  }
 }
 
 .input-field:focus {

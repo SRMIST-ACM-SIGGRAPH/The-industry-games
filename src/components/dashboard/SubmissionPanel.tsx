@@ -65,6 +65,23 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     setTimeout(() => setToastMessage(''), 3000);
   };
 
+  const handleProblemStatementChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (!team || team.isSubmitted) return;
+    setLoading(true);
+    const { error: psError } = await supabase
+      .from('ig_teams')
+      .update({ problem_statement: val })
+      .eq('id', team.id);
+      
+    if (psError) {
+      setError(psError.message);
+    } else {
+      await fetchFullTeam(team.id);
+    }
+    setLoading(false);
+  };
+
   const handleViewFile = async (type: 'submission') => {
     const rawValue = team.submissionUrl;
     if (!rawValue) return;
@@ -291,8 +308,29 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
             {/* Upload Controls */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <span className="alliance__code-label">1. Select District / Problem Statement</span>
+                <select 
+                  className="input-field" 
+                  value={team.problemStatement || ''} 
+                  onChange={handleProblemStatementChange}
+                  disabled={loading}
+                  style={{ padding: '0.75rem', fontSize: '0.95rem', cursor: loading ? 'wait' : 'pointer' }}
+                >
+                  <option value="" disabled>Select your arena challenge...</option>
+                  <option value="District 02: Project Portfolio Management & Risk Monitoring Platform for Fire and Rescue Operations">District 02: Project Portfolio Management & Risk Monitoring Platform</option>
+                  <option value="District 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform">District 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform</option>
+                  <option value="District 04: AI-Native Education OS for Intelligent Doubt Resolution">District 04: AI-Native Education OS for Intelligent Doubt Resolution</option>
+                  <option value="District 05: AI-Native EMR for Intelligent Clinical Assistance">District 05: AI-Native EMR for Intelligent Clinical Assistance</option>
+                  <option value="District 06: Intelligent Business Operations & Customer Engagement">District 06: Intelligent Business Operations & Customer Engagement</option>
+                </select>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
+                  For full dossier details, check the <a href="#problem-statements" style={{ color: 'var(--accent-gold)' }}>Problem Statements section below</a>.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span className="alliance__code-label">1. Pitch Presentation</span>
+                  <span className="alliance__code-label">2. Pitch Presentation</span>
                   <span style={{ fontSize: '0.75rem', color: '#888' }}>(Max 15MB)</span>
                 </div>
                 

@@ -240,32 +240,7 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
             )}
           </div>
           
-          <div className="alliance__status-bar" style={{ marginBottom: '1.5rem', fontSize: '0.95rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <label style={{ color: '#888' }}>Problem Statement</label>
-            {team.isSubmitted ? (
-              <div style={{ padding: '0.75rem', background: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--accent-gold)' }}>
-                {team.problemStatement || 'Not Selected'}
-              </div>
-            ) : (
-              <select 
-                className="input-field" 
-                value={team.problemStatement || ''} 
-                onChange={handleProblemStatementChange}
-                disabled={loading}
-                style={{ padding: '0.75rem', fontSize: '0.95rem', cursor: loading ? 'wait' : 'pointer' }}
-              >
-                <option value="" disabled>Select your arena challenge...</option>
-                <option value="PS 02: Project Portfolio Management & Risk Monitoring Platform for Fire and Rescue Operations">PS 02: Project Portfolio Management & Risk Monitoring Platform</option>
-                <option value="PS 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform">PS 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform</option>
-                <option value="PS 04: AI-Native Education OS for Intelligent Doubt Resolution">PS 04: AI-Native Education OS for Intelligent Doubt Resolution</option>
-                <option value="PS 05: AI-Native EMR for Intelligent Clinical Assistance">PS 05: AI-Native EMR for Intelligent Clinical Assistance</option>
-                <option value="PS 06: Intelligent Business Operations & Customer Engagement">PS 06: Intelligent Business Operations & Customer Engagement</option>
-              </select>
-            )}
-            <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
-              For full dossier details, check the <a href="#problem-statements" style={{ color: 'var(--accent-gold)' }}>Problem Statements section below</a>.
-            </p>
-          </div>
+
 
           <div style={{ flexGrow: 1 }}>
             <span className="alliance__code-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Roster</span>

@@ -144,6 +144,21 @@ export default function Home() {
       {/* Timeline Section */}
       <TimelineSection />
 
+      {/* Arena Awaits Separator Image */}
+      <section style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '4rem 1.5rem 0' }}>
+        <img 
+          src="/arena-awaits.jpg" 
+          alt="The Arena Awaits" 
+          style={{ 
+            maxWidth: '100%', 
+            height: 'auto', 
+            borderRadius: '12px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+            border: '1px solid rgba(212, 175, 55, 0.2)'
+          }} 
+        />
+      </section>
+
       {/* Problem Statements Section */}
       <ProblemCardsSection />
     </main>
