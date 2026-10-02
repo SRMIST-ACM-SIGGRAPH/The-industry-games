@@ -9,7 +9,7 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
   if (!session) return false;
 
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')
     .select('is_admin')
     .eq('id', session.user.id)
     .single();

@@ -53,6 +53,9 @@ export default function Navbar() {
       </div>
       
       <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+        <Link href="/announcements" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
+          Announcements
+        </Link>
         <Link href="/#timeline" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
           Timeline
         </Link>

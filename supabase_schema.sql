@@ -53,7 +53,7 @@ CREATE TABLE public.announcements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   content TEXT NOT NULL,
-  urgency TEXT DEFAULT 'normal' CHECK (urgency IN ('normal', 'high', 'critical')),
+  urgency TEXT DEFAULT 'general' CHECK (urgency IN ('general', 'urgent', 'critical')),
   created_by UUID REFERENCES public.profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -88,6 +88,41 @@ CREATE POLICY "Users can leave or be removed" ON public.ig_team_members FOR DELE
 
 -- ANNOUNCEMENTS
 CREATE POLICY "Announcements are public to authenticated" ON public.announcements FOR SELECT TO authenticated USING (true);
+
+-- SECURITY DEFINER helper so RLS policies can check admin status
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT COALESCE(
+    (SELECT is_admin FROM public.profiles WHERE id = auth.uid()),
+    FALSE
+  );
+$$;
+
+-- RLS policies for announcements
+CREATE POLICY "Admins can broadcast announcements" ON public.announcements
+  FOR INSERT WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can update announcements" ON public.announcements
+  FOR UPDATE USING (public.is_admin());
+
+CREATE POLICY "Admins can delete announcements" ON public.announcements
+  FOR DELETE USING (public.is_admin());
+
+-- Enable Supabase Realtime for the announcements table
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'announcements' AND schemaname = 'public'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+  END IF;
+END $$;
 
 -- ==========================================
 -- 5. STORAGE BUCKETS & POLICIES
