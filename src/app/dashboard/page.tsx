@@ -237,19 +237,21 @@ export default function Dashboard() {
           </p>
         </motion.section>
 
-        {/* Announcements Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <AnnouncementsPanel />
-        </motion.div>
       </div>
 
       {team && user && (
         <SubmissionPanel team={team} onTeamUpdate={setTeam} fetchFullTeam={fetchFullTeam} />
       )}
+
+      {/* Announcements Section (Full width block) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        style={{ marginTop: '2rem' }}
+      >
+        <AnnouncementsPanel />
+      </motion.div>
     </div>
   );
 }

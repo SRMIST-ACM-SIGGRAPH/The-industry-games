@@ -86,7 +86,7 @@ export default function AdminAnnouncements() {
         Send a real-time proclamation to every tribute in the arena.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '2rem', alignItems: 'start' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', alignItems: 'stretch' }}>
         {/* Broadcast Form */}
         <form onSubmit={handleBroadcast} className="admin-panel">
           <h2 style={{ color: 'var(--accent-gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
