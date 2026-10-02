@@ -112,9 +112,19 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     const fileExt = file.name.split('.').pop();
     const fileName = `${team.id}.${fileExt}`;
 
+    // Explicitly fetch the team row from DB to get the LATEST URL
+    const { data: latestTeam } = await supabase.from('ig_teams').select('payment_proof_url, submission_url').eq('id', team.id).single();
+
+    if (latestTeam) {
+      const oldUrl = type === 'proof' ? latestTeam.payment_proof_url : latestTeam.submission_url;
+      if (oldUrl) {
+        await supabase.storage.from(bucket).remove([oldUrl]);
+      }
+    }
+
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, file, { upsert: true, contentType: file.type });
 
     if (uploadError) {
       if (uploadError.message.includes('Bucket not found')) {
