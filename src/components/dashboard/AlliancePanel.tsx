@@ -8,7 +8,9 @@ export interface TeamView {
   name: string;
   teamCode: string;
   paymentStatus: 'pending' | 'verified' | 'rejected';
+  paymentProofUrl: string | null;
   submissionReady: boolean;
+  submissionUrl: string | null;
   isSubmitted: boolean;
   members: { id: string; name: string }[];
 }
