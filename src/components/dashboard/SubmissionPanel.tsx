@@ -65,92 +65,73 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     setTimeout(() => setToastMessage(''), 3000);
   };
 
-  const handleViewFile = async (type: 'proof' | 'submission') => {
-    const bucket = type === 'proof' ? 'ig_payment_proofs' : 'ig_submissions';
-    
-    // We now just extract the file name directly (since we store it directly now, but for legacy it might be a full URL, so we extract it)
-    const rawValue = type === 'proof' ? team.paymentProofUrl : team.submissionUrl;
+  const handleViewFile = async (type: 'submission') => {
+    const rawValue = team.submissionUrl;
     if (!rawValue) return;
 
-    // Extract filename from old CDN format or just use the raw value if it's already a filename
+    // Extract filename
     const fileName = rawValue.split('/').pop()?.split('?')[0] || rawValue;
 
-    setLoading(true);
-    setError('');
-
-    // Request a signed URL valid for 60 minutes
-    const { data, error: signError } = await supabase.storage.from(bucket).createSignedUrl(fileName, 60 * 60);
-    
-    if (signError) {
-      setError(`Could not access file: ${signError.message}`);
-      setLoading(false);
-      return;
-    }
-
-    if (data?.signedUrl) {
-      setPreviewUrl(data.signedUrl);
-    }
-    setLoading(false);
+    // Use our new API route which checks auth and redirects to the R2 presigned URL
+    setPreviewUrl(`/api/storage/view?fileName=${encodeURIComponent(fileName)}`);
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'proof' | 'submission') => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'submission') => {
     const file = e.target.files?.[0];
     if (!file || !team) return;
 
     setError('');
     
     // File size validation
-    const maxSize = type === 'proof' ? 2 * 1024 * 1024 : 15 * 1024 * 1024; // 2MB or 15MB
+    const maxSize = 15 * 1024 * 1024; // 15MB
     if (file.size > maxSize) {
-      setError(`File size exceeds the maximum limit of ${type === 'proof' ? '2MB' : '15MB'}. Please choose a smaller file.`);
+      setError('File size exceeds the maximum limit of 15MB. Please choose a smaller file.');
       return;
     }
 
     setLoading(true);
 
-    const bucket = type === 'proof' ? 'ig_payment_proofs' : 'ig_submissions';
     const fileExt = file.name.split('.').pop();
     const fileName = `${team.id}.${fileExt}`;
 
     // Explicitly fetch the team row from DB to get the LATEST URL
-    const { data: latestTeam } = await supabase.from('ig_teams').select('payment_proof_url, submission_url').eq('id', team.id).single();
+    const { data: latestTeam } = await supabase.from('ig_teams').select('submission_url').eq('id', team.id).single();
+    const oldUrl = latestTeam?.submission_url;
 
-    if (latestTeam) {
-      const oldUrl = type === 'proof' ? latestTeam.payment_proof_url : latestTeam.submission_url;
-      if (oldUrl) {
-        await supabase.storage.from(bucket).remove([oldUrl]);
-      }
-    }
+    try {
+      // 1. Get presigned upload URL from our API
+      const res = await fetch('/api/storage/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, contentType: file.type, oldFileName: oldUrl })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to initiate upload');
 
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file, { upsert: true, contentType: file.type });
+      // 2. Upload directly to Cloudflare R2
+      const uploadRes = await fetch(data.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
 
-    if (uploadError) {
-      if (uploadError.message.includes('Bucket not found')) {
-        setError(`Database Error: The storage bucket '${bucket}' does not exist. Please contact the administrators.`);
-      } else {
-        setError(uploadError.message);
-      }
-      setLoading(false);
-      return;
-    }
+      if (!uploadRes.ok) throw new Error('Upload to Cloudflare failed');
 
-    // Store the raw fileName in the database instead of a public URL
-    // since the bucket is private and we must generate signed URLs on the fly
-    const updateField = type === 'proof' ? { payment_proof_url: fileName } : { submission_url: fileName };
+      // 3. Update database
+      const { error: updateError } = await supabase
+        .from('ig_teams')
+        .update({ submission_url: fileName })
+        .eq('id', team.id);
 
-    const { error: updateError } = await supabase
-      .from('ig_teams')
-      .update(updateField)
-      .eq('id', team.id);
+      if (updateError) throw updateError;
 
-    if (updateError) {
-      setError(updateError.message);
-    } else {
       await fetchFullTeam(team.id);
-      showToast(type === 'proof' ? 'Payment Proof uploaded successfully!' : 'Presentation uploaded successfully!');
+      showToast('Presentation uploaded successfully!');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during upload');
     }
+    
     setLoading(false);
   };
 

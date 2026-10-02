@@ -22,6 +22,6 @@ export async function updateTeamPaymentStatus(teamId: string, status: 'pending' 
 
 export function getPaymentProofUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  const { data } = supabase.storage.from('ig_submissions').getPublicUrl(path);
-  return data.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
+  // Use our Next.js API route to fetch from R2 with auth validation
+  return `/api/storage/view?fileName=${encodeURIComponent(path)}`;
 }
