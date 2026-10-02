@@ -15,9 +15,14 @@ export default function VerificationsPage() {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [authToken, setAuthToken] = useState('');
 
   useEffect(() => {
     if (status === 'authorized') {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.access_token) setAuthToken(session.access_token);
+      });
+
       fetchTeamsForVerification()
         .then((data) => {
           setTeams(data);
@@ -154,7 +159,7 @@ export default function VerificationsPage() {
                 <div style={{ position: 'absolute', color: 'var(--accent-red)' }}>Error loading file.</div>
               )}
               <iframe 
-                src={getPaymentProofUrl(selectedTeam.submission_url) || ''} 
+                src={getPaymentProofUrl(selectedTeam.submission_url, authToken) || ''} 
                 title="Presentation Preview"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => { setImageError(true); setImageLoaded(true); }}

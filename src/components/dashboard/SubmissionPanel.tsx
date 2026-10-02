@@ -72,8 +72,11 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     // Extract filename
     const fileName = rawValue.split('/').pop()?.split('?')[0] || rawValue;
 
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || '';
+
     // Use our new API route which checks auth and redirects to the R2 presigned URL
-    setPreviewUrl(`/api/storage/view?fileName=${encodeURIComponent(fileName)}`);
+    setPreviewUrl(`/api/storage/view?fileName=${encodeURIComponent(fileName)}&token=${token}`);
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'submission') => {
@@ -99,10 +102,16 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     const oldUrl = latestTeam?.submission_url;
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
       // 1. Get presigned upload URL from our API
       const res = await fetch('/api/storage/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify({ fileName, contentType: file.type, oldFileName: oldUrl })
       });
       

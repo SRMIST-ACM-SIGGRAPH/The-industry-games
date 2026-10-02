@@ -3,8 +3,8 @@ import { supabase } from '@/lib/supabase';
 import { BookOpen } from 'lucide-react';
 
 export default function ProblemStatements() {
-  // Get the public URL for the PDF stored in the 'events' bucket
-  const { data } = supabase.storage.from('events').getPublicUrl('The_Industry_Games_2026_Problem_Statements.pdf');
+  // Get the public URL for the PDF stored in the 'event-posters' bucket
+  const { data } = supabase.storage.from('event-posters').getPublicUrl('The_Industry_Games_2026_Problem_Statements.pdf');
   const pdfUrl = data.publicUrl;
 
   return (

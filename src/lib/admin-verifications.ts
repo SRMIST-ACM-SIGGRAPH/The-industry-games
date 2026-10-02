@@ -20,8 +20,8 @@ export async function updateTeamPaymentStatus(teamId: string, status: 'pending' 
   if (error) throw error;
 }
 
-export function getPaymentProofUrl(path: string | null | undefined): string | null {
+export function getPaymentProofUrl(path: string | null | undefined, token: string = ''): string | null {
   if (!path) return null;
   // Use our Next.js API route to fetch from R2 with auth validation
-  return `/api/storage/view?fileName=${encodeURIComponent(path)}`;
+  return `/api/storage/view?fileName=${encodeURIComponent(path)}&token=${token}`;
 }
