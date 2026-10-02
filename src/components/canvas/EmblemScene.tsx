@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -228,8 +228,8 @@ export default function EmblemScene() {
       if (hasOrientation.current) return; // Prioritize orientation if active
       const nx = (e.clientX / window.innerWidth) * 2 - 1;
       const ny = -(e.clientY / window.innerHeight) * 2 + 1;
-      targetX.current = nx * 0.45;
-      targetY.current = ny * 0.35;
+      targetX.current = nx * 0.85;
+      targetY.current = ny * 0.65;
     };
 
     // 2. Mobile Device Orientation
