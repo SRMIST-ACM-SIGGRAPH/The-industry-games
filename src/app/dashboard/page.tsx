@@ -10,6 +10,7 @@ import CountdownTimer from '@/components/CountdownTimer';
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
+import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -235,6 +236,15 @@ export default function Dashboard() {
               : 'Join or create an alliance to unlock submissions.'}
           </p>
         </motion.section>
+
+        {/* Announcements Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <AnnouncementsPanel />
+        </motion.div>
       </div>
 
       {team && user && (

@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { isCurrentUserAdmin } from '@/lib/admin';
 import { User } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,6 +21,14 @@ export default function Navbar() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    isCurrentUserAdmin().then(setIsAdmin);
+  }, [user]);
 
   return (
     <nav style={{
@@ -49,6 +59,11 @@ export default function Navbar() {
         <Link href="/#problems" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
           Problem Statements
         </Link>
+        {isAdmin && (
+          <Link href="/admin" style={{ fontSize: '1rem', color: 'var(--accent-orange)', transition: 'color 0.3s' }}>
+            Command Center
+          </Link>
+        )}
         {user ? (
           <Link href="/dashboard" className="btn btn-primary">
             Dashboard

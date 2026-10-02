@@ -5,11 +5,15 @@ import HeroCanvas from '@/components/canvas/HeroCanvas';
 import CountdownTimer from '@/components/CountdownTimer';
 import TimelineSection from '@/components/landing/TimelineSection';
 import ProblemCardsSection from '@/components/landing/ProblemCardsSection';
+import AnnouncementsTicker from '@/components/announcements/AnnouncementsTicker';
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 
 export default function Home() {
   return (
     <main>
+      {/* Live Announcement Ticker */}
+      <AnnouncementsTicker />
+
       {/* Hero Section with 3D Background */}
       <section style={{ minHeight: '100dvh', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         <HeroCanvas />
