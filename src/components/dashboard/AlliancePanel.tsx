@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { Copy, Check } from 'lucide-react';
 
 export interface TeamView {
   id: string;
@@ -24,6 +25,7 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState('');
@@ -37,10 +39,8 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
     }
     setLoading(true);
     
-    // Generate 6 char alphanumeric code (uppercase)
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     
-    // 1. Insert Team
     const { data: newTeam, error: createError } = await supabase
       .from('ig_teams')
       .insert({ name: inputValue.trim(), team_code: code, leader_id: userId })
@@ -53,7 +53,6 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
       return;
     }
 
-    // 2. Insert Leader into Members Junction
     const { error: joinError } = await supabase
       .from('ig_team_members')
       .insert({ team_id: newTeam.id, profile_id: userId });
@@ -78,17 +77,14 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
     }
     setLoading(true);
 
-    // Call our custom Postgres RPC function to safely join
     const { error: rpcError } = await supabase.rpc('join_ig_team', { p_team_code: inputValue.trim().toUpperCase() });
     
     if (rpcError) {
-      // Clean up postgres error messages
       setError(rpcError.message.replace('P0001: ', ''));
       setLoading(false);
       return;
     }
 
-    // Successfully joined! Fetch team id using member table
     const { data: memberData } = await supabase
       .from('ig_team_members')
       .select('team_id')
@@ -142,7 +138,8 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
   const copyToClipboard = () => {
     if (team) {
       navigator.clipboard.writeText(team.teamCode);
-      alert('Team code copied to clipboard!');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -152,61 +149,84 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.08 }}
+      style={{ display: 'flex', flexDirection: 'column' }}
     >
       <h2 className="panel__title">Alliance / Team</h2>
 
       {team ? (
-        <div className="alliance__active">
+        <div className="alliance__active" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           {error && <p className="form-error" style={{ color: 'var(--accent-red)', fontSize: '0.85rem' }}>{error}</p>}
-          <div className="alliance__code" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <div>
-              <span className="alliance__code-label">Team Code</span>
-              <span className="alliance__code-value" style={{ userSelect: 'all' }}>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginBottom: '1.5rem' }}>
+            <span className="alliance__code-label" style={{ marginBottom: '0.5rem' }}>Join Code</span>
+            <div 
+              onClick={copyToClipboard}
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                background: 'rgba(212, 175, 55, 0.08)', 
+                border: '1px dashed var(--accent-gold)', 
+                padding: '1rem', 
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: copied ? '0 0 10px rgba(212, 175, 55, 0.2)' : 'none'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.15)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)'}
+            >
+              <span className="alliance__code-value" style={{ letterSpacing: '0.3em', margin: 0 }}>
                 {team.teamCode}
               </span>
+              <span style={{ color: 'var(--accent-gold)', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {copied ? (
+                  <>
+                    <Check size={18} /> Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy size={18} /> Copy
+                  </>
+                )}
+              </span>
             </div>
-            <button 
-              className="btn" 
-              onClick={copyToClipboard}
-              style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', background: 'transparent', border: '1px solid var(--accent-gold)', color: 'var(--accent-gold)' }}
-            >
-              Copy Code
-            </button>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
             {isRenaming ? (
-              <form onSubmit={handleRenameTeam} style={{ display: 'flex', gap: '0.5rem' }}>
+              <form onSubmit={handleRenameTeam} style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                 <input 
                   type="text" 
-                  className="form-input" 
+                  className="input-field" 
                   defaultValue={team.name} 
                   onChange={(e) => setNewName(e.target.value)} 
                   autoFocus 
                   maxLength={30} 
                   disabled={loading}
-                  style={{ padding: '0.25rem 0.5rem' }}
+                  style={{ padding: '0.5rem', flexGrow: 1 }}
                 />
-                <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '0.25rem 1rem' }}>Save</button>
-                <button type="button" className="btn" onClick={() => setIsRenaming(false)} disabled={loading} style={{ padding: '0.25rem 1rem' }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '0.5rem 1rem' }}>Save</button>
+                <button type="button" className="btn" onClick={() => setIsRenaming(false)} disabled={loading} style={{ padding: '0.5rem 1rem' }}>Cancel</button>
               </form>
             ) : (
-              <>
-                <p className="alliance__name" style={{ margin: 0 }}>{team.name}</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <p className="alliance__name" style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{team.name}</p>
                 {!team.isSubmitted && (
-                  <button className="btn" onClick={() => { setNewName(team.name); setIsRenaming(true); }} style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
+                  <button className="btn" onClick={() => { setNewName(team.name); setIsRenaming(true); }} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
                     Rename
                   </button>
                 )}
-              </>
+              </div>
             )}
           </div>
           
-          <div className="alliance__status-bar" style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#b5b5b5' }}>
+          <div className="alliance__status-bar" style={{ marginBottom: '1.5rem', fontSize: '0.9rem', color: '#b5b5b5', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
             <span>Payment Proof: 
                <strong style={{ 
                  marginLeft: '8px', 
-                 textTransform: 'capitalize', 
+                 textTransform: 'uppercase', 
+                 letterSpacing: '0.05em',
                  color: team.paymentStatus === 'verified' ? '#4caf50' : team.paymentStatus === 'rejected' ? '#f44336' : '#ff9800' 
                }}>
                  {team.paymentStatus}
@@ -214,22 +234,25 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
             </span>
           </div>
 
-          <ul className="alliance__roster" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-            {team.members.map((m) => (
-              <li key={m.id}>
-                <span className="alliance__dot" aria-hidden style={{ background: m.id === userId ? 'var(--accent-orange)' : 'var(--border-color)' }} />
-                {m.name || 'Unknown User'} {m.id === userId && '(You)'}
-              </li>
-            ))}
-          </ul>
+          <div style={{ flexGrow: 1 }}>
+            <span className="alliance__code-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Roster</span>
+            <ul className="alliance__roster" style={{ margin: '0' }}>
+              {team.members.map((m) => (
+                <li key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', color: '#ddd' }}>
+                  <span className="alliance__dot" aria-hidden style={{ background: m.id === userId ? 'var(--accent-orange)' : 'var(--border-color)' }} />
+                  {m.name || 'Unknown User'} {m.id === userId && <span style={{ color: '#888', fontSize: '0.85rem' }}>(You)</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {!team.isSubmitted && (
-            <div style={{ marginTop: '1.5rem' }}>
+            <div style={{ marginTop: '2rem' }}>
               <button 
                 className="btn btn-danger" 
                 onClick={handleLeaveTeam}
                 disabled={loading}
-                style={{ fontSize: '0.85rem' }}
+                style={{ fontSize: '0.85rem', width: '100%' }}
               >
                 {loading ? 'Leaving...' : 'Leave Alliance'}
               </button>
@@ -237,7 +260,7 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
           )}
         </div>
       ) : (
-        <div className="alliance__empty">
+        <div className="alliance__empty" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
           <AnimatePresence mode="wait">
             {mode === 'view' && (
               <motion.div
@@ -250,7 +273,7 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                 <p className="alliance__empty-sub">
                   Form an alliance of up to 4 tributes, or join one with a team code.
                 </p>
-                <div className="alliance__cta">
+                <div className="alliance__cta" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <button className="btn btn-primary" onClick={() => { setMode('create'); setInputValue(''); setError(''); }}>
                     Create Alliance
                   </button>
@@ -269,13 +292,13 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                 exit={{ opacity: 0, x: -20 }}
                 onSubmit={handleCreate}
                 className="alliance__form"
-                style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
-                <label className="form-label" style={{ textAlign: 'left' }}>
+                <label className="form-group" style={{ textAlign: 'left' }}>
                   Alliance Name
                   <input
                     type="text"
-                    className="form-input"
+                    className="input-field"
                     placeholder="e.g. The Mockingjays"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
@@ -285,7 +308,7 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                   />
                 </label>
                 {error && <div className="form-error" style={{ color: 'var(--accent-red)', fontSize: '0.85rem' }}>{error}</div>}
-                <div className="alliance__cta" style={{ marginTop: '0.5rem' }}>
+                <div className="alliance__cta" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                   <button className="btn btn-primary" type="submit" disabled={loading}>
                     {loading ? 'Creating...' : 'Confirm'}
                   </button>
@@ -304,24 +327,24 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                 exit={{ opacity: 0, x: -20 }}
                 onSubmit={handleJoin}
                 className="alliance__form"
-                style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
-                <label className="form-label" style={{ textAlign: 'left' }}>
+                <label className="form-group" style={{ textAlign: 'left' }}>
                   6-Character Team Code
                   <input
                     type="text"
-                    className="form-input"
+                    className="input-field"
                     placeholder="e.g. A7X9Q2"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value.toUpperCase())}
                     autoFocus
                     maxLength={6}
                     disabled={loading}
-                    style={{ textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 'bold' }}
+                    style={{ textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 'bold', textAlign: 'center' }}
                   />
                 </label>
                 {error && <div className="form-error" style={{ color: 'var(--accent-red)', fontSize: '0.85rem' }}>{error}</div>}
-                <div className="alliance__cta" style={{ marginTop: '0.5rem' }}>
+                <div className="alliance__cta" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                   <button className="btn btn-primary" type="submit" disabled={loading}>
                     {loading ? 'Joining...' : 'Confirm'}
                   </button>

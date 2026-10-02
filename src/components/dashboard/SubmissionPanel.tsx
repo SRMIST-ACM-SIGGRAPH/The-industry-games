@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { EVENT_DEADLINE_LABEL } from '@/lib/event';
 import { TeamView } from './AlliancePanel';
+import { Receipt, Presentation, Lock, CheckCircle2 } from 'lucide-react';
 
 interface SubmissionPanelProps {
   team: TeamView;
@@ -75,38 +76,51 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      style={{ marginTop: '2rem' }}
+      style={{ 
+        marginTop: '2rem', 
+        borderTop: '3px solid var(--accent-gold)', 
+        background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.05) 0%, var(--panel-bg) 100%)' 
+      }}
     >
-      <h2 className="panel__title">Project Submission</h2>
-      {error && <p className="form-error" style={{ color: 'var(--accent-red)', fontSize: '0.85rem', marginBottom: '1rem' }}>{error}</p>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div>
+          <h2 className="panel__title" style={{ marginBottom: '0.25rem' }}>Project Submission</h2>
+          <p style={{ color: '#888', fontSize: '0.9rem' }}>Upload your payment proof and final presentation here.</p>
+        </div>
+      </div>
+      
+      {error && <p className="form-error" style={{ color: 'var(--accent-red)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>{error}</p>}
       
       {team.isSubmitted ? (
-        <div style={{ background: 'rgba(76, 175, 80, 0.1)', padding: '1.5rem', borderRadius: '4px', border: '1px solid #4caf50' }}>
-          <strong style={{ color: '#4caf50', fontSize: '1.2rem' }}>✓ Successfully Submitted!</strong>
-          <p style={{ fontSize: '1rem', color: '#ccc', margin: '0.5rem 0 0 0' }}>Your project is locked in for review. Excellent work, Tribute.</p>
+        <div style={{ 
+          background: 'rgba(76, 175, 80, 0.08)', 
+          padding: '2rem', 
+          borderRadius: '8px', 
+          border: '1px solid #4caf50',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <CheckCircle2 size={48} color="#4caf50" />
+          <div>
+            <strong style={{ color: '#4caf50', fontSize: '1.4rem', display: 'block', marginBottom: '0.25rem' }}>Successfully Submitted!</strong>
+            <p style={{ fontSize: '1rem', color: '#ccc', margin: 0 }}>Your project is locked in for review. Excellent work, Tribute.</p>
+          </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem' }}>
+          
           {/* Upload Controls */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div>
-              <label className="btn" style={{ display: 'block', textAlign: 'center', cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-                {team.submissionReady ? 'Re-upload Presentation (PPT/PDF)' : 'Upload Presentation (PPT/PDF)'}
-                <input 
-                  type="file" 
-                  accept=".ppt,.pptx,application/pdf" 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => handleUpload(e, 'submission')}
-                  disabled={loading}
-                />
-              </label>
-              <p style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.5rem' }}>
-                You can re-upload to replace your file as many times as needed until you lock it.
-              </p>
-            </div>
-
-            <div>
-              <label className="btn" style={{ display: 'block', textAlign: 'center', cursor: loading ? 'wait' : 'pointer', background: 'transparent', border: '1px solid var(--border-color)', opacity: loading ? 0.7 : 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <span className="alliance__code-label">1. Payment Verification</span>
+              <label className="btn" style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
+                cursor: loading ? 'wait' : 'pointer', background: 'transparent', border: '1px solid var(--border-color)', opacity: loading ? 0.7 : 1 
+              }}>
+                <Receipt size={20} />
                 {team.paymentStatus !== 'pending' ? 'Re-upload Payment Proof (Image/PDF)' : 'Upload Payment Proof (Image/PDF)'}
                 <input 
                   type="file" 
@@ -117,20 +131,51 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
                 />
               </label>
             </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <span className="alliance__code-label">2. Pitch Presentation</span>
+              <label className="btn" style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1,
+                border: '1px dashed var(--accent-gold)'
+              }}>
+                <Presentation size={20} />
+                {team.submissionReady ? 'Re-upload Presentation (PPT/PDF)' : 'Upload Presentation (PPT/PDF)'}
+                <input 
+                  type="file" 
+                  accept=".ppt,.pptx,application/pdf" 
+                  style={{ display: 'none' }} 
+                  onChange={(e) => handleUpload(e, 'submission')}
+                  disabled={loading}
+                />
+              </label>
+              <p style={{ fontSize: '0.85rem', color: '#888', margin: 0 }}>
+                You can re-upload to replace your file as many times as needed until you lock it.
+              </p>
+            </div>
           </div>
 
           {/* Submission Lock Area */}
-          <div style={{ background: 'rgba(212, 175, 55, 0.05)', padding: '1.5rem', borderRadius: '4px', border: '1px dashed var(--accent-gold)' }}>
-            <p style={{ fontSize: '0.95rem', color: '#ccc', margin: '0 0 1rem 0', lineHeight: 1.5 }}>
-              Once you lock and submit, your file becomes immutable and cannot be changed. All un-submitted teams will be auto-submitted at <strong>{EVENT_DEADLINE_LABEL}</strong>.
+          <div style={{ 
+            background: 'rgba(212, 175, 55, 0.05)', 
+            padding: '2rem', 
+            borderRadius: '8px', 
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}>
+            <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem', fontSize: '1.2rem', fontFamily: 'var(--font-display)' }}>Lock In Your Submission</h3>
+            <p style={{ fontSize: '0.95rem', color: '#ccc', margin: '0 0 1.5rem 0', lineHeight: 1.6 }}>
+              Once you lock and submit, your presentation file becomes immutable and cannot be changed. All un-submitted teams will be automatically force-submitted at <strong>{EVENT_DEADLINE_LABEL}</strong>.
             </p>
             <button 
               className="btn btn-primary" 
-              style={{ width: '100%', opacity: !team.submissionReady || loading ? 0.5 : 1 }}
+              style={{ width: '100%', opacity: !team.submissionReady || loading ? 0.5 : 1, padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
               disabled={!team.submissionReady || loading}
               onClick={handleFinalSubmit}
             >
-              Lock & Submit Project
+              <Lock size={18} /> Lock & Submit Project
             </button>
           </div>
         </div>
