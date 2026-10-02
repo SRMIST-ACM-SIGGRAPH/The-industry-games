@@ -8,10 +8,10 @@ export interface TeamView {
   name: string;
   teamCode: string;
   paymentStatus: 'pending' | 'verified' | 'rejected';
-  paymentProofUrl: string | null;
   submissionReady: boolean;
   submissionUrl: string | null;
   isSubmitted: boolean;
+  problemStatement: string | null;
   members: { id: string; name: string }[];
 }
 
@@ -145,6 +145,23 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
     }
   };
 
+  const handleProblemStatementChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (!team || team.isSubmitted) return;
+    setLoading(true);
+    const { error: psError } = await supabase
+      .from('ig_teams')
+      .update({ problem_statement: val })
+      .eq('id', team.id);
+      
+    if (psError) {
+      setError(psError.message);
+    } else {
+      await fetchFullTeam(team.id);
+    }
+    setLoading(false);
+  };
+
   return (
     <motion.section
       className="panel alliance"
@@ -223,17 +240,31 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
             )}
           </div>
           
-          <div className="alliance__status-bar" style={{ marginBottom: '1.5rem', fontSize: '0.9rem', color: '#b5b5b5', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-            <span>Payment Proof: 
-               <strong style={{ 
-                 marginLeft: '8px', 
-                 textTransform: 'uppercase', 
-                 letterSpacing: '0.05em',
-                 color: team.paymentStatus === 'verified' ? '#4caf50' : team.paymentStatus === 'rejected' ? '#f44336' : '#ff9800' 
-               }}>
-                 {team.paymentStatus}
-               </strong>
-            </span>
+          <div className="alliance__status-bar" style={{ marginBottom: '1.5rem', fontSize: '0.95rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <label style={{ color: '#888' }}>Problem Statement</label>
+            {team.isSubmitted ? (
+              <div style={{ padding: '0.75rem', background: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--accent-gold)' }}>
+                {team.problemStatement || 'Not Selected'}
+              </div>
+            ) : (
+              <select 
+                className="input-field" 
+                value={team.problemStatement || ''} 
+                onChange={handleProblemStatementChange}
+                disabled={loading}
+                style={{ padding: '0.75rem', fontSize: '0.95rem', cursor: loading ? 'wait' : 'pointer' }}
+              >
+                <option value="" disabled>Select your arena challenge...</option>
+                <option value="PS 02: Project Portfolio Management & Risk Monitoring Platform for Fire and Rescue Operations">PS 02: Project Portfolio Management & Risk Monitoring Platform</option>
+                <option value="PS 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform">PS 03: AI-Powered Lead Generation, Qualification & Sales Automation Platform</option>
+                <option value="PS 04: AI-Native Education OS for Intelligent Doubt Resolution">PS 04: AI-Native Education OS for Intelligent Doubt Resolution</option>
+                <option value="PS 05: AI-Native EMR for Intelligent Clinical Assistance">PS 05: AI-Native EMR for Intelligent Clinical Assistance</option>
+                <option value="PS 06: Intelligent Business Operations & Customer Engagement">PS 06: Intelligent Business Operations & Customer Engagement</option>
+              </select>
+            )}
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
+              For full dossier details, check the <a href="#problem-statements" style={{ color: 'var(--accent-gold)' }}>Problem Statements section below</a>.
+            </p>
           </div>
 
           <div style={{ flexGrow: 1 }}>

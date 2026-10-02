@@ -11,6 +11,7 @@ import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
+import ProblemStatements from '@/components/dashboard/ProblemStatements';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function Dashboard() {
         submissionReady: !!teamData.submission_url,
         submissionUrl: teamData.submission_url,
         isSubmitted: teamData.is_submitted,
+        problemStatement: teamData.problem_statement,
         members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
       });
     } else {
@@ -92,6 +94,7 @@ export default function Dashboard() {
             submissionReady: !!teamData.submission_url,
             submissionUrl: teamData.submission_url,
             isSubmitted: teamData.is_submitted,
+            problemStatement: teamData.problem_statement,
             members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
           };
         }
@@ -252,6 +255,8 @@ export default function Dashboard() {
       >
         <AnnouncementsPanel />
       </motion.div>
+
+      <ProblemStatements />
     </div>
   );
 }

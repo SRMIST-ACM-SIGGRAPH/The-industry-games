@@ -18,5 +18,6 @@ export interface Team {
   verifier?: { college_email: string };
   submission_url?: string;
   is_submitted: boolean;
+  problem_statement?: string;
   created_at: string;
 }
