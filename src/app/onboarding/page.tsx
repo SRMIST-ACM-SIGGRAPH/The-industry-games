@@ -47,7 +47,8 @@ export default function Onboarding() {
   const [linkedinUrl, setLinkedinUrl] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState('');
 
   // Route guard: must be logged in; if already onboarded, skip to dashboard.
   // Running this on both /onboarding and /dashboard is what stops a user from
@@ -70,7 +71,13 @@ export default function Onboarding() {
       if (!active) return;
       setUser(session.user);
       if (profile?.full_name) setFullName(profile.full_name);
-      if (profile?.college_email) setCollegeEmail(profile.college_email);
+      
+      if (profile?.college_email) {
+        setCollegeEmail(profile.college_email);
+      } else if (session.user.email) {
+        setCollegeEmail(session.user.email);
+      }
+
       if (profile?.registration_number) setRegNumber(profile.registration_number);
       if (profile?.department) {
         if (DEPARTMENTS.includes(profile.department)) {
@@ -92,31 +99,64 @@ export default function Onboarding() {
     };
   }, [router]);
 
-  const validate = (): string | null => {
-    if (!fullName.trim()) return 'Full name is required.';
-    if (!EMAIL_PATTERN.test(collegeEmail.trim())) return 'Enter a valid college email address.';
-    if (!REG_PATTERN.test(regNumber.trim()))
-      return 'Enter a valid SRM registration number (e.g. RA2611003010123).';
-    if (!department) return 'Please select your department / branch.';
-    if (department === 'Other' && !otherDepartment.trim()) return 'Please specify your department.';
-    if (!academicYear) return 'Please select your academic year.';
-    if (!PHONE_PATTERN.test(phone.trim()))
-      return 'Enter a valid 10-digit mobile number.';
-    if (!GITHUB_PATTERN.test(githubUrl.trim())) return 'Enter a valid GitHub profile URL.';
-    if (!LINKEDIN_PATTERN.test(linkedinUrl.trim())) return 'Enter a valid LinkedIn profile URL.';
-    return null;
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'fullName':
+        return value.trim() ? '' : 'Full name is required.';
+      case 'collegeEmail':
+        return EMAIL_PATTERN.test(value.trim()) ? '' : 'Enter a valid college email address.';
+      case 'regNumber':
+        return REG_PATTERN.test(value.trim()) ? '' : 'Enter a valid SRM registration number (e.g. RA2611003010123).';
+      case 'department':
+        return value ? '' : 'Please select your department / branch.';
+      case 'otherDepartment':
+        return value.trim() ? '' : 'Please specify your department.';
+      case 'academicYear':
+        return value ? '' : 'Please select your academic year.';
+      case 'phone':
+        return PHONE_PATTERN.test(value.trim()) ? '' : 'Enter a valid 10-digit mobile number.';
+      case 'githubUrl':
+        return GITHUB_PATTERN.test(value.trim()) ? '' : 'Enter a valid GitHub profile URL.';
+      case 'linkedinUrl':
+        return LINKEDIN_PATTERN.test(value.trim()) ? '' : 'Enter a valid LinkedIn profile URL.';
+      default:
+        return '';
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    // For 'otherDepartment', validate only if department is 'Other'
+    if (id === 'otherDepartment' && department !== 'Other') return;
+    
+    const errorMsg = validateField(id, value);
+    setErrors((prev) => ({ ...prev, [id]: errorMsg }));
+  };
+
+  const validateAll = (): boolean => {
+    const newErrors: Record<string, string> = {
+      fullName: validateField('fullName', fullName),
+      collegeEmail: validateField('collegeEmail', collegeEmail),
+      regNumber: validateField('regNumber', regNumber),
+      department: validateField('department', department),
+      otherDepartment: department === 'Other' ? validateField('otherDepartment', otherDepartment) : '',
+      academicYear: validateField('academicYear', academicYear),
+      phone: validateField('phone', phone),
+      githubUrl: validateField('githubUrl', githubUrl),
+      linkedinUrl: validateField('linkedinUrl', linkedinUrl),
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((err) => err !== '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    const problem = validate();
-    if (problem) {
-      setError(problem);
+    setSubmitError('');
+    if (!validateAll()) {
       return;
     }
     if (!user) {
-      setError('Session expired. Please log in again.');
+      setSubmitError('Session expired. Please log in again.');
       return;
     }
 
@@ -141,7 +181,7 @@ export default function Onboarding() {
     );
 
     if (upsertError) {
-      setError(upsertError.message);
+      setSubmitError(upsertError.message);
       setSubmitting(false);
       return;
     }
@@ -156,6 +196,14 @@ export default function Onboarding() {
       </div>
     );
   }
+
+  const renderFieldError = (fieldName: string) => {
+    return errors[fieldName] ? (
+      <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.375rem', display: 'block' }}>
+        {errors[fieldName]}
+      </span>
+    ) : null;
+  };
 
   return (
     <div className="onboarding">
@@ -177,49 +225,58 @@ export default function Onboarding() {
             <label htmlFor="fullName">Full Name</label>
             <input
               id="fullName"
-              className="input-field"
+              className={`input-field ${errors.fullName ? 'border-red-500' : ''}`}
               type="text"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => { setFullName(e.target.value); setErrors(p => ({...p, fullName: ''})) }}
+              onBlur={handleBlur}
               placeholder="Katniss Everdeen"
               autoComplete="name"
             />
+            {renderFieldError('fullName')}
           </div>
 
           <div className="form-group">
             <label htmlFor="collegeEmail">College Email</label>
             <input
               id="collegeEmail"
-              className="input-field"
+              className={`input-field ${errors.collegeEmail ? 'border-red-500' : ''}`}
               type="email"
               value={collegeEmail}
-              onChange={(e) => setCollegeEmail(e.target.value)}
-              placeholder="katniss.everdeen@srmist.edu.in"
+              onChange={(e) => { setCollegeEmail(e.target.value); setErrors(p => ({...p, collegeEmail: ''})) }}
+              onBlur={handleBlur}
+              placeholder="ab1234@srmist.edu.in"
               autoComplete="email"
+              readOnly={!!user?.email}
+              disabled={!!user?.email}
             />
+            {renderFieldError('collegeEmail')}
           </div>
 
           <div className="form-group">
             <label htmlFor="regNumber">Registration Number</label>
             <input
               id="regNumber"
-              className="input-field"
+              className={`input-field ${errors.regNumber ? 'border-red-500' : ''}`}
               type="text"
               value={regNumber}
-              onChange={(e) => setRegNumber(e.target.value.toUpperCase())}
+              onChange={(e) => { setRegNumber(e.target.value.toUpperCase()); setErrors(p => ({...p, regNumber: ''})) }}
+              onBlur={handleBlur}
               placeholder="RA2611003010123"
               maxLength={15}
               style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}
             />
+            {renderFieldError('regNumber')}
           </div>
 
           <div className="form-group">
             <label htmlFor="department">Department / Branch</label>
             <select
               id="department"
-              className="input-field"
+              className={`input-field ${errors.department ? 'border-red-500' : ''}`}
               value={department}
-              onChange={(e) => setDepartment(e.target.value)}
+              onChange={(e) => { setDepartment(e.target.value); setErrors(p => ({...p, department: ''})) }}
+              onBlur={handleBlur}
             >
               <option value="" disabled>
                 Select your district…
@@ -230,6 +287,7 @@ export default function Onboarding() {
                 </option>
               ))}
             </select>
+            {renderFieldError('department')}
           </div>
 
           {department === 'Other' && (
@@ -237,12 +295,14 @@ export default function Onboarding() {
               <label htmlFor="otherDepartment">Specify Department</label>
               <input
                 id="otherDepartment"
-                className="input-field"
+                className={`input-field ${errors.otherDepartment ? 'border-red-500' : ''}`}
                 type="text"
                 value={otherDepartment}
-                onChange={(e) => setOtherDepartment(e.target.value)}
+                onChange={(e) => { setOtherDepartment(e.target.value); setErrors(p => ({...p, otherDepartment: ''})) }}
+                onBlur={handleBlur}
                 placeholder="e.g. Architecture"
               />
+              {renderFieldError('otherDepartment')}
             </div>
           )}
 
@@ -250,9 +310,10 @@ export default function Onboarding() {
             <label htmlFor="academicYear">Academic Year</label>
             <select
               id="academicYear"
-              className="input-field"
+              className={`input-field ${errors.academicYear ? 'border-red-500' : ''}`}
               value={academicYear}
-              onChange={(e) => setAcademicYear(e.target.value)}
+              onChange={(e) => { setAcademicYear(e.target.value); setErrors(p => ({...p, academicYear: ''})) }}
+              onBlur={handleBlur}
             >
               <option value="" disabled>Select Year…</option>
               <option value="1st Year">1st Year</option>
@@ -261,49 +322,56 @@ export default function Onboarding() {
               <option value="4th Year">4th Year</option>
               <option value="Passed Out">Passed Out</option>
             </select>
+            {renderFieldError('academicYear')}
           </div>
 
           <div className="form-group">
             <label htmlFor="phone">Contact Number</label>
             <input
               id="phone"
-              className="input-field"
+              className={`input-field ${errors.phone ? 'border-red-500' : ''}`}
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, ''))}
+              onChange={(e) => { setPhone(e.target.value.replace(/[^\d]/g, '')); setErrors(p => ({...p, phone: ''})) }}
+              onBlur={handleBlur}
               placeholder="9876543210"
               maxLength={10}
               autoComplete="tel"
             />
+            {renderFieldError('phone')}
           </div>
 
           <div className="form-group">
             <label htmlFor="githubUrl">GitHub Profile URL</label>
             <input
               id="githubUrl"
-              className="input-field"
+              className={`input-field ${errors.githubUrl ? 'border-red-500' : ''}`}
               type="url"
               value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
+              onChange={(e) => { setGithubUrl(e.target.value); setErrors(p => ({...p, githubUrl: ''})) }}
+              onBlur={handleBlur}
               placeholder="https://github.com/username"
             />
+            {renderFieldError('githubUrl')}
           </div>
 
           <div className="form-group">
             <label htmlFor="linkedinUrl">LinkedIn Profile URL</label>
             <input
               id="linkedinUrl"
-              className="input-field"
+              className={`input-field ${errors.linkedinUrl ? 'border-red-500' : ''}`}
               type="url"
               value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
+              onChange={(e) => { setLinkedinUrl(e.target.value); setErrors(p => ({...p, linkedinUrl: ''})) }}
+              onBlur={handleBlur}
               placeholder="https://linkedin.com/in/username"
             />
+            {renderFieldError('linkedinUrl')}
           </div>
 
-          {error && (
+          {submitError && (
             <div className="form-error" role="alert">
-              {error}
+              {submitError}
             </div>
           )}
 
