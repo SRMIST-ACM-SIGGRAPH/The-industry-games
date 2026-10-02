@@ -8,27 +8,37 @@ import { supabase } from '@/lib/supabase';
 import { getProfile, isProfileComplete, Profile } from '@/lib/profile';
 import CountdownTimer from '@/components/CountdownTimer';
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
-
-// Minimal shape of an alliance/team as the dashboard needs to *render* it.
-// The real team data + create/join logic is owned by Pod 3 (Issue #5); this
-// dashboard only displays it. Until #5 lands, `team` stays null and the
-// "no alliance" empty state is shown.
-interface TeamView {
-  name: string;
-  teamCode: string;
-  members: { id: string; name: string }[];
-  submissionReady: boolean;
-}
+import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
+import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 
 export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [team, setTeam] = useState<TeamView | null>(null);
 
-  // Owned by Pod 3 (#5). Hard-coded null so the empty state renders without
-  // duplicating team backend logic that belongs to another pod.
-  const [team] = useState<TeamView | null>(null);
+  const fetchFullTeam = async (teamId: string) => {
+    const { data: teamData } = await supabase.from('ig_teams').select('*').eq('id', teamId).single();
+    const { data: roster } = await supabase
+      .from('ig_team_members')
+      .select('profile_id, profiles(full_name)')
+      .eq('team_id', teamId);
+      
+    if (teamData) {
+      setTeam({
+        id: teamData.id,
+        name: teamData.name,
+        teamCode: teamData.team_code,
+        paymentStatus: teamData.payment_status,
+        submissionReady: !!teamData.submission_url,
+        isSubmitted: teamData.is_submitted,
+        members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
+      });
+    } else {
+      setTeam(null);
+    }
+  };
 
   // Route guard: not logged in -> /login; logged in but profile incomplete
   // -> /onboarding; otherwise render. This mirrors the guard in /onboarding
@@ -48,9 +58,44 @@ export default function Dashboard() {
         router.replace('/onboarding');
         return;
       }
+
+      // Fetch team data
+      const { data: memberData } = await supabase
+        .from('ig_team_members')
+        .select('team_id')
+        .eq('profile_id', session.user.id)
+        .single();
+      
+      let initialTeam: TeamView | null = null;
+      if (memberData) {
+        const { data: teamData } = await supabase
+          .from('ig_teams')
+          .select('*')
+          .eq('id', memberData.team_id)
+          .single();
+        
+        const { data: roster } = await supabase
+          .from('ig_team_members')
+          .select('profile_id, profiles(full_name)')
+          .eq('team_id', memberData.team_id);
+          
+        if (teamData) {
+          initialTeam = {
+            id: teamData.id,
+            name: teamData.name,
+            teamCode: teamData.team_code,
+            paymentStatus: teamData.payment_status,
+            submissionReady: !!teamData.submission_url,
+            isSubmitted: teamData.is_submitted,
+            members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
+          };
+        }
+      }
+
       if (!active) return;
       setUser(session.user);
       setProfile(p);
+      setTeam(initialTeam);
       setLoading(false);
     };
     run();
@@ -85,7 +130,7 @@ export default function Dashboard() {
   const readiness = [
     { label: 'Profile completed', done: true },
     { label: 'Alliance formed', done: Boolean(team) },
-    { label: 'Presentation submitted', done: Boolean(team?.submissionReady) },
+    { label: 'Project locked & submitted', done: Boolean(team?.isSubmitted) },
   ];
 
   return (
@@ -160,48 +205,7 @@ export default function Dashboard() {
         </motion.section>
 
         {/* Alliance / team status */}
-        <motion.section
-          className="panel alliance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-        >
-          <h2 className="panel__title">Alliance / Team</h2>
-          {team ? (
-            <div className="alliance__active">
-              <div className="alliance__code">
-                <span className="alliance__code-label">Team Code</span>
-                <span className="alliance__code-value">{team.teamCode}</span>
-              </div>
-              <p className="alliance__name">{team.name}</p>
-              <ul className="alliance__roster">
-                {team.members.map((m) => (
-                  <li key={m.id}>
-                    <span className="alliance__dot" aria-hidden />
-                    {m.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <div className="alliance__empty">
-              <p className="alliance__empty-text">You are not in an Alliance.</p>
-              <p className="alliance__empty-sub">
-                Form an alliance of up to 4 tributes, or join one with a team
-                code.
-              </p>
-              <div className="alliance__cta">
-                {/* Wiring owned by Pod 3 (Issue #5). */}
-                <button className="btn btn-primary" type="button">
-                  Create Alliance
-                </button>
-                <button className="btn" type="button">
-                  Join Alliance
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.section>
+        {user && <AlliancePanel userId={user.id} team={team} onTeamUpdate={setTeam} fetchFullTeam={fetchFullTeam} />}
 
         {/* Submission readiness */}
         <motion.section
@@ -228,6 +232,10 @@ export default function Dashboard() {
           </p>
         </motion.section>
       </div>
+
+      {team && user && (
+        <SubmissionPanel team={team} onTeamUpdate={setTeam} fetchFullTeam={fetchFullTeam} />
+      )}
     </div>
   );
 }
