@@ -4,9 +4,13 @@ import { supabase } from '@/lib/supabase';
 export interface Profile {
   id: string;
   full_name: string;
+  college_email: string;
   registration_number: string;
   department: string;
+  academic_year: string;
   phone_number: string;
+  github_url: string;
+  linkedin_url: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -18,9 +22,13 @@ export function isProfileComplete(profile: Profile | null): boolean {
   if (!profile) return false;
   return Boolean(
     profile.full_name?.trim() &&
+      profile.college_email?.trim() &&
       profile.registration_number?.trim() &&
       profile.department?.trim() &&
-      profile.phone_number?.trim()
+      profile.academic_year?.trim() &&
+      profile.phone_number?.trim() &&
+      profile.github_url?.trim() &&
+      profile.linkedin_url?.trim()
   );
 }
 
@@ -31,7 +39,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
     .select(
-      'id, full_name, registration_number, department, phone_number, created_at, updated_at'
+      'id, full_name, college_email, registration_number, department, academic_year, phone_number, github_url, linkedin_url, created_at, updated_at'
     )
     .eq('id', userId)
     .maybeSingle();

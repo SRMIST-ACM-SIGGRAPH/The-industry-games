@@ -129,12 +129,32 @@ export default function Dashboard() {
               <dd>{profile?.department}</dd>
             </div>
             <div>
+              <dt>Year</dt>
+              <dd>{profile?.academic_year}</dd>
+            </div>
+            <div>
               <dt>Contact</dt>
               <dd>{profile?.phone_number}</dd>
             </div>
             <div>
               <dt>Email</dt>
-              <dd>{user?.email}</dd>
+              <dd>{profile?.college_email || user?.email}</dd>
+            </div>
+            <div>
+              <dt>GitHub</dt>
+              <dd>
+                <a href={profile?.github_url} target="_blank" rel="noopener noreferrer">
+                  Profile
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt>LinkedIn</dt>
+              <dd>
+                <a href={profile?.linkedin_url} target="_blank" rel="noopener noreferrer">
+                  Profile
+                </a>
+              </dd>
             </div>
           </dl>
         </motion.section>

@@ -23,9 +23,12 @@ const DEPARTMENTS = [
   'Other',
 ];
 
-// SRMIST registration numbers look like RA2211003010123 (RA + 13 digits).
+// SRMIST registration numbers look like RA2611003010123 (RA + 13 digits).
 const REG_PATTERN = /^RA\d{13}$/i;
 const PHONE_PATTERN = /^[6-9]\d{9}$/; // 10-digit Indian mobile
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const GITHUB_PATTERN = /^https:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+\/?.*$/i;
+const LINKEDIN_PATTERN = /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?.*$/i;
 
 export default function Onboarding() {
   const router = useRouter();
@@ -34,9 +37,14 @@ export default function Onboarding() {
   const [user, setUser] = useState<User | null>(null);
 
   const [fullName, setFullName] = useState('');
+  const [collegeEmail, setCollegeEmail] = useState('');
   const [regNumber, setRegNumber] = useState('');
   const [department, setDepartment] = useState('');
+  const [otherDepartment, setOtherDepartment] = useState('');
+  const [academicYear, setAcademicYear] = useState('');
   const [phone, setPhone] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -62,6 +70,20 @@ export default function Onboarding() {
       if (!active) return;
       setUser(session.user);
       if (profile?.full_name) setFullName(profile.full_name);
+      if (profile?.college_email) setCollegeEmail(profile.college_email);
+      if (profile?.registration_number) setRegNumber(profile.registration_number);
+      if (profile?.department) {
+        if (DEPARTMENTS.includes(profile.department)) {
+          setDepartment(profile.department);
+        } else {
+          setDepartment('Other');
+          setOtherDepartment(profile.department);
+        }
+      }
+      if (profile?.academic_year) setAcademicYear(profile.academic_year);
+      if (profile?.phone_number) setPhone(profile.phone_number);
+      if (profile?.github_url) setGithubUrl(profile.github_url);
+      if (profile?.linkedin_url) setLinkedinUrl(profile.linkedin_url);
       setChecking(false);
     };
     run();
@@ -72,11 +94,16 @@ export default function Onboarding() {
 
   const validate = (): string | null => {
     if (!fullName.trim()) return 'Full name is required.';
+    if (!EMAIL_PATTERN.test(collegeEmail.trim())) return 'Enter a valid college email address.';
     if (!REG_PATTERN.test(regNumber.trim()))
-      return 'Enter a valid SRM registration number (e.g. RA2211003010123).';
+      return 'Enter a valid SRM registration number (e.g. RA2611003010123).';
     if (!department) return 'Please select your department / branch.';
+    if (department === 'Other' && !otherDepartment.trim()) return 'Please specify your department.';
+    if (!academicYear) return 'Please select your academic year.';
     if (!PHONE_PATTERN.test(phone.trim()))
       return 'Enter a valid 10-digit mobile number.';
+    if (!GITHUB_PATTERN.test(githubUrl.trim())) return 'Enter a valid GitHub profile URL.';
+    if (!LINKEDIN_PATTERN.test(linkedinUrl.trim())) return 'Enter a valid LinkedIn profile URL.';
     return null;
   };
 
@@ -94,13 +121,20 @@ export default function Onboarding() {
     }
 
     setSubmitting(true);
+    
+    const finalDepartment = department === 'Other' ? otherDepartment.trim() : department;
+
     const { error: upsertError } = await supabase.from('profiles').upsert(
       {
         id: user.id,
         full_name: fullName.trim(),
+        college_email: collegeEmail.trim(),
         registration_number: regNumber.trim().toUpperCase(),
-        department,
+        department: finalDepartment,
+        academic_year: academicYear,
         phone_number: phone.trim(),
+        github_url: githubUrl.trim(),
+        linkedin_url: linkedinUrl.trim(),
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'id' }
@@ -153,6 +187,19 @@ export default function Onboarding() {
           </div>
 
           <div className="form-group">
+            <label htmlFor="collegeEmail">College Email</label>
+            <input
+              id="collegeEmail"
+              className="input-field"
+              type="email"
+              value={collegeEmail}
+              onChange={(e) => setCollegeEmail(e.target.value)}
+              placeholder="katniss.everdeen@srmist.edu.in"
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="form-group">
             <label htmlFor="regNumber">Registration Number</label>
             <input
               id="regNumber"
@@ -160,7 +207,7 @@ export default function Onboarding() {
               type="text"
               value={regNumber}
               onChange={(e) => setRegNumber(e.target.value.toUpperCase())}
-              placeholder="RA2211003010123"
+              placeholder="RA2611003010123"
               maxLength={15}
               style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}
             />
@@ -185,6 +232,37 @@ export default function Onboarding() {
             </select>
           </div>
 
+          {department === 'Other' && (
+            <div className="form-group">
+              <label htmlFor="otherDepartment">Specify Department</label>
+              <input
+                id="otherDepartment"
+                className="input-field"
+                type="text"
+                value={otherDepartment}
+                onChange={(e) => setOtherDepartment(e.target.value)}
+                placeholder="e.g. Architecture"
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="academicYear">Academic Year</label>
+            <select
+              id="academicYear"
+              className="input-field"
+              value={academicYear}
+              onChange={(e) => setAcademicYear(e.target.value)}
+            >
+              <option value="" disabled>Select Year…</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="Passed Out">Passed Out</option>
+            </select>
+          </div>
+
           <div className="form-group">
             <label htmlFor="phone">Contact Number</label>
             <input
@@ -196,6 +274,30 @@ export default function Onboarding() {
               placeholder="9876543210"
               maxLength={10}
               autoComplete="tel"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="githubUrl">GitHub Profile URL</label>
+            <input
+              id="githubUrl"
+              className="input-field"
+              type="url"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="https://github.com/username"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="linkedinUrl">LinkedIn Profile URL</label>
+            <input
+              id="linkedinUrl"
+              className="input-field"
+              type="url"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              placeholder="https://linkedin.com/in/username"
             />
           </div>
 
