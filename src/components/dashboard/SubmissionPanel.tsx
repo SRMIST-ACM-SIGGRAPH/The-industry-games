@@ -317,7 +317,6 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
               </div>
 
               </div>
-            </div>
 
             {/* Submission Lock Area */}
             <div style={{ 
