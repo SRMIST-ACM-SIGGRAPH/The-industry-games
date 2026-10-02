@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAdminGuard } from '@/lib/useAdminGuard';
 import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
-import { fetchAnnouncements, formatTimestamp, subscribeToAnnouncements } from '@/lib/announcements';
+import { fetchAnnouncements, subscribeToAnnouncements, deleteAnnouncement, updateAnnouncement } from '@/lib/announcements';
+import AnnouncementsFeed from '@/components/announcements/AnnouncementsFeed';
 import { Announcement, Urgency } from '@/lib/types';
 
 const URGENCY_OPTIONS: { value: Urgency; label: string }[] = [
@@ -20,6 +21,7 @@ export default function AdminAnnouncements() {
   const [content, setContent] = useState('');
   const [urgency, setUrgency] = useState<Urgency>('general');
   const [broadcasting, setBroadcasting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [history, setHistory] = useState<Announcement[]>([]);
@@ -38,8 +40,17 @@ export default function AdminAnnouncements() {
     if (status !== 'authorized') return;
     loadHistory();
 
-    const channel = subscribeToAnnouncements((announcement) => {
-      setHistory((prev) => [announcement, ...prev]);
+    const channel = subscribeToAnnouncements((payload) => {
+      if (payload.eventType === 'INSERT') {
+        const ann = payload.new as Announcement;
+        setHistory((prev) => [ann, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        const ann = payload.new as Announcement;
+        setHistory((prev) => prev.map(a => a.id === ann.id ? ann : a));
+      } else if (payload.eventType === 'DELETE') {
+        const oldId = payload.old.id;
+        setHistory((prev) => prev.filter(a => a.id !== oldId));
+      }
     });
     return () => {
       supabase.removeChannel(channel);
@@ -53,20 +64,51 @@ export default function AdminAnnouncements() {
     setBroadcasting(true);
     setFeedback(null);
 
-    const { error } = await supabase
-      .from('announcements')
-      .insert({ title: title.trim(), content: content.trim(), urgency });
+    try {
+      if (editingId) {
+        await updateAnnouncement(editingId, { title: title.trim(), content: content.trim(), urgency });
+        setFeedback({ type: 'success', message: 'Announcement updated.' });
+      } else {
+        const { error } = await supabase
+          .from('announcements')
+          .insert({ title: title.trim(), content: content.trim(), urgency });
+        if (error) throw error;
+        setFeedback({ type: 'success', message: 'Announcement broadcast to the arena.' });
+      }
 
-    setBroadcasting(false);
-
-    if (error) {
-      setFeedback({ type: 'error', message: `Broadcast failed: ${error.message}` });
-    } else {
-      setFeedback({ type: 'success', message: 'Announcement broadcast to the arena.' });
+      setEditingId(null);
       setTitle('');
       setContent('');
       setUrgency('general');
+    } catch (error: any) {
+      setFeedback({ type: 'error', message: `Broadcast failed: ${error.message}` });
+    } finally {
+      setBroadcasting(false);
     }
+  };
+
+  const handleEditClick = (ann: Announcement) => {
+    setEditingId(ann.id);
+    setTitle(ann.title);
+    setContent(ann.content);
+    setUrgency(ann.urgency);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this announcement?')) return;
+    try {
+      await deleteAnnouncement(id);
+    } catch (error: any) {
+      alert(`Delete failed: ${error.message}`);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle('');
+    setContent('');
+    setUrgency('general');
   };
 
   if (status === 'loading' || status === 'unauthenticated') {
@@ -89,9 +131,16 @@ export default function AdminAnnouncements() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', alignItems: 'stretch' }}>
         {/* Broadcast Form */}
         <form onSubmit={handleBroadcast} className="admin-panel">
-          <h2 style={{ color: 'var(--accent-gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
-            New Broadcast
-          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ color: 'var(--accent-gold)', margin: 0, fontSize: '1.5rem' }}>
+              {editingId ? 'Edit Broadcast' : 'New Broadcast'}
+            </h2>
+            {editingId && (
+              <button type="button" className="btn" onClick={handleCancelEdit} style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                Cancel
+              </button>
+            )}
+          </div>
 
           <label htmlFor="announcement-title" className="form-label">Title</label>
           <input
@@ -148,28 +197,7 @@ export default function AdminAnnouncements() {
           <h2 style={{ color: 'var(--accent-gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
             Broadcast History
           </h2>
-          {historyError && <p style={{ color: 'var(--accent-orange)' }}>{historyError}</p>}
-          {!historyError && history.length === 0 && (
-            <p style={{ color: '#aaa' }}>No announcements broadcast yet.</p>
-          )}
-          <ul className="announcement-list">
-            {history.map((announcement) => (
-              <li key={announcement.id} className="announcement-item">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}>
-                    {announcement.title}
-                  </span>
-                  <span className={`urgency-badge urgency-${announcement.urgency}`}>
-                    {announcement.urgency}
-                  </span>
-                </div>
-                <p style={{ color: '#aaa', margin: '0.5rem 0' }}>{announcement.content}</p>
-                <time style={{ color: '#777', fontSize: '0.85rem' }} dateTime={announcement.created_at}>
-                  {formatTimestamp(announcement.created_at)}
-                </time>
-              </li>
-            ))}
-          </ul>
+          <AnnouncementsFeed announcements={history} error={historyError} onEdit={handleEditClick} onDelete={handleDeleteClick} />
         </div>
       </div>
     </div>

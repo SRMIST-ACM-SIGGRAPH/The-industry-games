@@ -394,7 +394,7 @@ select.input-field { appearance: none; cursor: pointer; }
   .countdown--hero .countdown__unit { min-width: 3.5rem; padding: 0.5rem 0.35rem; }
   .countdown--hero .countdown__value { font-size: 1.6rem; }
   .alliance__cta { flex-direction: column; }
-
+}
 
 /* Admin Panels */
 .admin-panel {
@@ -461,9 +461,9 @@ select.input-field { appearance: none; cursor: pointer; }
   color: #ccc;
 }
 
-.urgency-chip-active.urgency-general { border-color: var(--accent-gold); color: #fff; background: rgba(212, 175, 55, 0.15); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
-.urgency-chip-active.urgency-urgent { border-color: var(--accent-orange); color: #fff; background: rgba(255, 69, 0, 0.15); box-shadow: 0 0 15px rgba(255, 69, 0, 0.2); }
-.urgency-chip-active.urgency-critical { border-color: var(--accent-red); color: #fff; background: rgba(220, 20, 60, 0.15); box-shadow: 0 0 15px rgba(220, 20, 60, 0.3); }
+.urgency-chip-active.urgency-general { border-color: var(--accent-gold); color: #000; background: var(--accent-gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+.urgency-chip-active.urgency-urgent { border-color: #d97706; color: #fff; background: #d97706; box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
+.urgency-chip-active.urgency-critical { border-color: #be123c; color: #fff; background: #be123c; box-shadow: 0 0 15px rgba(190, 18, 60, 0.4); }
 
 /* Announcement Feed */
 .announcement-list {
@@ -493,11 +493,11 @@ select.input-field { appearance: none; cursor: pointer; }
   pointer-events: none;
 }
 
-.announcement-item-urgent { border-left-color: var(--accent-orange); }
-.announcement-item-urgent::after { background: linear-gradient(90deg, rgba(255, 69, 0, 0.05), transparent); }
+.announcement-item-urgent { border-left-color: #d97706; }
+.announcement-item-urgent::after { background: linear-gradient(90deg, rgba(217, 119, 6, 0.05), transparent); }
 
-.announcement-item-critical { border-left-color: var(--accent-red); animation: announcement-in 0.4s, pulse-critical 2s infinite; }
-.announcement-item-critical::after { background: linear-gradient(90deg, rgba(220, 20, 60, 0.05), transparent); }
+.announcement-item-critical { border-left-color: #be123c; animation: announcement-in 0.4s, pulse-critical 2s infinite; }
+.announcement-item-critical::after { background: linear-gradient(90deg, rgba(190, 18, 60, 0.05), transparent); }
 
 @keyframes announcement-in {
   from { opacity: 0; transform: translateY(-8px) scale(0.98); }
@@ -505,9 +505,9 @@ select.input-field { appearance: none; cursor: pointer; }
 }
 
 @keyframes pulse-critical {
-  0% { box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(220, 20, 60, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 20, 60, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(190, 18, 60, 0.3); }
+  70% { box-shadow: 0 0 0 10px rgba(190, 18, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(190, 18, 60, 0); }
 }
 
 /* Landing Page Ticker */

@@ -18,8 +18,8 @@ export default function AnnouncementsPanel() {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
         <h2 style={{ color: 'var(--accent-gold)', fontSize: '1.5rem' }}>Announcements</h2>
-        <Link href="/announcements" className="btn" style={{ padding: '0.5rem 1rem' }}>
-          Full History
+        <Link href="/announcements" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+          View All Announcements
         </Link>
       </div>
       <AnnouncementsFeed announcements={announcements.slice(0, 3)} error={error} />

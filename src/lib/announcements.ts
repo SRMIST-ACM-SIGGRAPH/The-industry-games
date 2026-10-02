@@ -13,20 +13,28 @@ export async function fetchAnnouncements(limit?: number): Promise<Announcement[]
   if (error) throw error;
   return (data ?? []) as Announcement[];
 }
+export async function deleteAnnouncement(id: string) {
+  const { error } = await supabase.from('announcements').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function updateAnnouncement(id: string, updates: Partial<Announcement>) {
+  const { error } = await supabase.from('announcements').update(updates).eq('id', id);
+  if (error) throw error;
+}
 
 /**
- * Subscribes to realtime INSERT events on public.announcements.
- * Returns the channel; call supabase.removeChannel(channel) to unsubscribe.
+ * Subscribes to realtime events on public.announcements.
  */
 export function subscribeToAnnouncements(
-  onInsert: (announcement: Announcement) => void
+  onChange: (payload: any) => void
 ) {
   const channel = supabase
     .channel('announcements')
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'announcements' },
-      (payload) => onInsert(payload.new as Announcement)
+      { event: '*', schema: 'public', table: 'announcements' },
+      (payload) => onChange(payload)
     )
     .subscribe();
 

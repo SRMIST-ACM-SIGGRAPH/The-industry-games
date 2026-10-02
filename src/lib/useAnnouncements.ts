@@ -36,10 +36,18 @@ export function useAnnouncements(limit?: number) {
       .channel(channelName.current)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'announcements' },
+        { event: '*', schema: 'public', table: 'announcements' },
         (payload) => {
-          const announcement = payload.new as Announcement;
-          setAnnouncements((prev) => [announcement, ...prev].slice(0, limit ?? prev.length + 1));
+          if (payload.eventType === 'INSERT') {
+            const announcement = payload.new as Announcement;
+            setAnnouncements((prev) => [announcement, ...prev].slice(0, limit ?? prev.length + 1));
+          } else if (payload.eventType === 'UPDATE') {
+            const announcement = payload.new as Announcement;
+            setAnnouncements((prev) => prev.map(a => a.id === announcement.id ? announcement : a));
+          } else if (payload.eventType === 'DELETE') {
+            const oldId = payload.old.id;
+            setAnnouncements((prev) => prev.filter(a => a.id !== oldId));
+          }
         }
       )
       .subscribe();

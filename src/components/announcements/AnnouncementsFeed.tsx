@@ -4,9 +4,11 @@ import { formatTimestamp } from '@/lib/announcements';
 interface AnnouncementsFeedProps {
   announcements: Announcement[];
   error?: string | null;
+  onEdit?: (a: Announcement) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function AnnouncementsFeed({ announcements, error }: AnnouncementsFeedProps) {
+export default function AnnouncementsFeed({ announcements, error, onEdit, onDelete }: AnnouncementsFeedProps) {
   if (error) {
     return <p style={{ color: 'var(--accent-orange)' }}>{error}</p>;
   }
@@ -19,18 +21,31 @@ export default function AnnouncementsFeed({ announcements, error }: Announcement
     <ul className="announcement-list">
       {announcements.map((announcement) => (
         <li key={announcement.id} className={`announcement-item announcement-item-${announcement.urgency}`}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}>
-              {announcement.title}
-            </span>
-            <span className={`urgency-badge urgency-${announcement.urgency}`}>
-              {announcement.urgency}
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <span style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}>
+                {announcement.title}
+              </span>
+              <time style={{ color: '#777', fontSize: '0.85rem' }} dateTime={announcement.created_at}>
+                {formatTimestamp(announcement.created_at)}
+              </time>
+            </div>
+            {(onEdit || onDelete) && (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {onEdit && (
+                  <button onClick={() => onEdit(announcement)} className="btn btn-primary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}>
+                    Edit
+                  </button>
+                )}
+                {onDelete && (
+                  <button onClick={() => onDelete(announcement.id)} className="btn" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}>
+                    Delete
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          <p style={{ color: '#aaa', margin: '0.5rem 0' }}>{announcement.content}</p>
-          <time style={{ color: '#777', fontSize: '0.85rem' }} dateTime={announcement.created_at}>
-            {formatTimestamp(announcement.created_at)}
-          </time>
+          <p style={{ color: '#aaa', margin: '0.5rem 0 0 0' }}>{announcement.content}</p>
         </li>
       ))}
     </ul>
