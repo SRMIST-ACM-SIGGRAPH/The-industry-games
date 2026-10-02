@@ -75,7 +75,7 @@ export default function VerificationsPage() {
             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--accent-gold)', fontFamily: 'var(--font-display)' }}>
               <th style={{ padding: '1rem' }}>Team Name</th>
               <th style={{ padding: '1rem' }}>Code</th>
-              <th style={{ padding: '1rem' }}>Proof</th>
+              <th style={{ padding: '1rem' }}>Presentation</th>
               <th style={{ padding: '1rem' }}>Status</th>
               <th style={{ padding: '1rem' }}>Verified By</th>
             </tr>
@@ -86,7 +86,7 @@ export default function VerificationsPage() {
                 <td style={{ padding: '1rem' }}>{team.name}</td>
                 <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{team.team_code}</td>
                 <td style={{ padding: '1rem' }}>
-                  {team.payment_proof_url ? (
+                  {team.submission_url ? (
                     <button
                       onClick={() => {
                         setSelectedTeam(team);
@@ -96,7 +96,7 @@ export default function VerificationsPage() {
                       className="btn btn-primary"
                       style={{ padding: '0.2rem 0.6rem', fontSize: '0.8rem' }}
                     >
-                      Review Proof
+                      Review Presentation
                     </button>
                   ) : (
                     <span style={{ color: '#666' }}>No proof</span>
@@ -141,7 +141,7 @@ export default function VerificationsPage() {
             
             {/* Header */}
             <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, color: 'var(--accent-gold)' }}>Review Proof: {selectedTeam.name}</h3>
+              <h3 style={{ margin: 0, color: 'var(--accent-gold)' }}>Review Presentation: {selectedTeam.name}</h3>
               <button onClick={() => setSelectedTeam(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             </div>
 
@@ -154,8 +154,8 @@ export default function VerificationsPage() {
                 <div style={{ position: 'absolute', color: 'var(--accent-red)' }}>Error loading file.</div>
               )}
               <iframe 
-                src={getPaymentProofUrl(selectedTeam.payment_proof_url) || ''} 
-                title="Payment Proof Preview"
+                src={getPaymentProofUrl(selectedTeam.submission_url) || ''} 
+                title="Presentation Preview"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => { setImageError(true); setImageLoaded(true); }}
                 style={{ 

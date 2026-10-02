@@ -288,11 +288,6 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              {team.paymentProofUrl && (
-                <button onClick={() => handleViewFile('proof')} disabled={loading} className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Eye size={16} /> View Payment Proof
-                </button>
-              )}
               {team.submissionUrl && (
                 <button onClick={() => handleViewFile('submission')} disabled={loading} className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Eye size={16} /> View Presentation
@@ -340,34 +335,6 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
                 </p>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span className="alliance__code-label">2. Payment Verification</span>
-                  <span style={{ fontSize: '0.75rem', color: '#888' }}>(Max 2MB)</span>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <label className="btn" style={{ 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', 
-                    cursor: loading ? 'wait' : 'pointer', background: 'transparent', border: '1px solid var(--border-color)', opacity: loading ? 0.7 : 1, flex: 1, padding: '0.75rem 0.5rem' 
-                  }}>
-                    <UploadCloud size={18} />
-                    {team.paymentProofUrl ? 'Re-upload Proof' : 'Upload Proof (Image/PDF)'}
-                    <input 
-                      type="file" 
-                      accept="image/*,application/pdf" 
-                      style={{ display: 'none' }} 
-                      onChange={(e) => handleUpload(e, 'proof')}
-                      disabled={loading}
-                    />
-                  </label>
-                  
-                  {team.paymentProofUrl && (
-                    <button type="button" onClick={() => handleViewFile('proof')} disabled={loading} className="btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1rem' }} title="View Uploaded File">
-                      <Eye size={18} />
-                    </button>
-                  )}
-                </div>
               </div>
             </div>
 

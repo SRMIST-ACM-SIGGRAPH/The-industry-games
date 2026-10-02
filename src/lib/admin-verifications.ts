@@ -22,6 +22,6 @@ export async function updateTeamPaymentStatus(teamId: string, status: 'pending' 
 
 export function getPaymentProofUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  const { data } = supabase.storage.from('ig_payment_proofs').getPublicUrl(path);
+  const { data } = supabase.storage.from('ig_submissions').getPublicUrl(path);
   return data.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
 }
