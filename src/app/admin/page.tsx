@@ -37,16 +37,16 @@ export default function AdminHome() {
           </Link>
         </div>
 
-        <div className="admin-panel" style={{ opacity: 0.5 }}>
+        <div className="admin-panel">
           <h2 style={{ color: 'var(--accent-gold)', marginBottom: '1rem', fontSize: '1.5rem' }}>
             Verification Panel
           </h2>
           <p style={{ color: '#aaa', marginBottom: '2rem' }}>
-            Review payment proofs and toggle team verification. Coming with Issue #7.
+            Review payment proofs and toggle team verification.
           </p>
-          <button className="btn" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-            Pending — Issue #7
-          </button>
+          <Link href="/admin/verifications" className="btn btn-primary">
+            Open Verifications
+          </Link>
         </div>
       </div>
     </div>

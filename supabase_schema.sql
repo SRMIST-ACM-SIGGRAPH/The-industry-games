@@ -32,6 +32,7 @@ CREATE TABLE public.ig_teams (
   leader_id UUID REFERENCES public.profiles(id) NOT NULL,
   payment_proof_url TEXT,
   payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'verified', 'rejected')),
+  verified_by UUID REFERENCES public.profiles(id),
   submission_url TEXT,
   is_submitted BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -77,6 +78,7 @@ CREATE POLICY "Profiles are readable by authenticated users" ON public.profiles 
 CREATE POLICY "Authenticated users can view teams" ON public.ig_teams FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Leaders can create teams" ON public.ig_teams FOR INSERT TO authenticated WITH CHECK (auth.uid() = leader_id);
 CREATE POLICY "Leaders can update their team" ON public.ig_teams FOR UPDATE TO authenticated USING (auth.uid() = leader_id) WITH CHECK (auth.uid() = leader_id);
+CREATE POLICY "Admins can update any team" ON public.ig_teams FOR UPDATE TO authenticated USING (public.is_admin());
 
 -- IG TEAM MEMBERS
 CREATE POLICY "Authenticated users can view team members" ON public.ig_team_members FOR SELECT TO authenticated USING (true);
@@ -141,6 +143,10 @@ CREATE POLICY "Users can upload to their buckets" ON storage.objects FOR INSERT 
 );
 
 CREATE POLICY "Users can update their own files" ON storage.objects FOR UPDATE TO authenticated USING (
+  bucket_id IN ('ig_payment_proofs', 'ig_submissions') AND owner = auth.uid()
+);
+
+CREATE POLICY "Users can delete their own files" ON storage.objects FOR DELETE TO authenticated USING (
   bucket_id IN ('ig_payment_proofs', 'ig_submissions') AND owner = auth.uid()
 );
 
