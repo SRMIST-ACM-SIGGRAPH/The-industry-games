@@ -13,10 +13,12 @@ import { Announcement } from '@/lib/types';
 export function useAnnouncements(limit?: number) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const channelName = useRef(`announcements-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
 
     const load = async () => {
       try {
@@ -27,6 +29,8 @@ export function useAnnouncements(limit?: number) {
         }
       } catch {
         if (!cancelled) setError('Unable to load announcements.');
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -59,5 +63,5 @@ export function useAnnouncements(limit?: number) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
-  return { announcements, error };
+  return { announcements, error, loading };
 }

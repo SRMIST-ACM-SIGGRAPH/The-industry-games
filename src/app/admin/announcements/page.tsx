@@ -26,13 +26,17 @@ export default function AdminAnnouncements() {
 
   const [history, setHistory] = useState<Announcement[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(true);
 
   const loadHistory = useCallback(async () => {
+    setLoadingHistory(true);
     try {
       setHistory(await fetchAnnouncements());
       setHistoryError(null);
     } catch {
       setHistoryError('Could not load past broadcasts. Has the migration been applied?');
+    } finally {
+      setLoadingHistory(false);
     }
   }, []);
 
@@ -197,7 +201,7 @@ export default function AdminAnnouncements() {
           <h2 style={{ color: 'var(--accent-gold)', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
             Broadcast History
           </h2>
-          <AnnouncementsFeed announcements={history} error={historyError} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+          <AnnouncementsFeed announcements={history} error={historyError} loading={loadingHistory} onEdit={handleEditClick} onDelete={handleDeleteClick} />
         </div>
       </div>
     </div>

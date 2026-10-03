@@ -99,7 +99,7 @@ export default function ProblemCard({ problem, index }: ProblemCardProps) {
               opacity: 0.85,
             }}
           >
-            {`Sector ${formattedId} // Arena Challenge`}
+            {`Arena Challenge`}
           </span>
         </div>
 
@@ -172,7 +172,7 @@ export default function ProblemCard({ problem, index }: ProblemCardProps) {
             fontFamily: 'var(--font-display)',
           }}
         >
-          0{problem.id}/06
+          0{index + 1}/05
         </span>
       </div>
     </motion.div>

@@ -5,28 +5,28 @@ import ProblemCard, { ProblemStatement } from './ProblemCard';
 
 export const PROBLEM_STATEMENTS: ProblemStatement[] = [
   {
-    id: 2,
-    title: 'District 02: Project Portfolio Management & Risk Monitoring Platform',
+    id: 1,
+    title: '1. Project Portfolio Management & Risk Monitoring Platform (District 02)',
     desc: 'Develop a Project Portfolio Management (PPM) platform for a fire and rescue organization to manage multiple projects, track their progress, identify risks, and provide management with a consolidated view of portfolio performance.',
   },
   {
-    id: 3,
-    title: 'District 03: AI-Powered Lead Generation & Sales Automation Platform',
+    id: 2,
+    title: '2. AI-Powered Lead Generation & Sales Automation (District 03)',
     desc: 'Develop an AI-powered sales intelligence and lead automation platform that can identify potential customers, research companies, qualify leads, prepare personalized outreach, and track opportunities.',
   },
   {
-    id: 4,
-    title: 'District 04: AI-Native Education OS for Intelligent Doubt Resolution',
+    id: 3,
+    title: '3. AI-Native Education OS for Intelligent Doubt Resolution (District 04)',
     desc: 'Build an AI-powered education platform that helps students receive the right assistance for their doubts at the right time using AI explanations, practice, or relevant human teachers.',
   },
   {
-    id: 5,
-    title: 'District 05: AI-Native EMR for Intelligent Clinical Assistance',
+    id: 4,
+    title: '4. AI-Native EMR for Intelligent Clinical Assistance (District 05)',
     desc: 'Develop an AI-powered Electronic Medical Record platform that helps healthcare professionals capture, organize, understand, and retrieve patient information efficiently.',
   },
   {
-    id: 6,
-    title: 'District 06: Intelligent Business Operations & Customer Engagement',
+    id: 5,
+    title: '5. Intelligent Business Operations & Customer Engagement (District 06)',
     desc: 'Build a smart and scalable business management platform that intelligently leverages organizational and customer data to streamline operations, automate routine processes, and identify actionable business opportunities.',
   },
 ];
@@ -51,7 +51,7 @@ export default function ProblemCardsSection() {
             marginBottom: '0.75rem',
           }}
         >
-          {'Arena Directive // 6 Sectors'}
+          {'Arena Directive - 5 Sectors'}
         </motion.span>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

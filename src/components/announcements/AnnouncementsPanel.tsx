@@ -9,7 +9,7 @@ import { useAnnouncements } from '@/lib/useAnnouncements';
  * The "Full History" button navigates to the public announcements page.
  */
 export default function AnnouncementsPanel() {
-  const { announcements, error } = useAnnouncements();
+  const { announcements, error, loading } = useAnnouncements();
 
   return (
     <div
@@ -22,7 +22,7 @@ export default function AnnouncementsPanel() {
           View All Announcements
         </Link>
       </div>
-      <AnnouncementsFeed announcements={announcements.slice(0, 3)} error={error} />
+      <AnnouncementsFeed announcements={announcements.slice(0, 3)} error={error} loading={loading} />
     </div>
   );
 }

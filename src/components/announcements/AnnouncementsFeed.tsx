@@ -4,13 +4,23 @@ import { formatTimestamp } from '@/lib/announcements';
 interface AnnouncementsFeedProps {
   announcements: Announcement[];
   error?: string | null;
+  loading?: boolean;
   onEdit?: (a: Announcement) => void;
   onDelete?: (id: string) => void;
 }
 
-export default function AnnouncementsFeed({ announcements, error, onEdit, onDelete }: AnnouncementsFeedProps) {
+export default function AnnouncementsFeed({ announcements, error, loading, onEdit, onDelete }: AnnouncementsFeedProps) {
   if (error) {
     return <p style={{ color: 'var(--accent-orange)' }}>{error}</p>;
+  }
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem 0', gap: '0.75rem', color: 'var(--accent-gold)' }}>
+        <div style={{ width: '16px', height: '16px', border: '2px solid var(--accent-gold)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <span style={{ fontSize: '0.9rem', fontFamily: 'var(--font-display)', letterSpacing: '0.1em' }}>Awaiting Capitol Broadcast...</span>
+      </div>
+    );
   }
 
   if (announcements.length === 0) {

@@ -4,7 +4,7 @@ import AnnouncementsFeed from '@/components/announcements/AnnouncementsFeed';
 import { useAnnouncements } from '@/lib/useAnnouncements';
 
 export default function AnnouncementsPage() {
-  const { announcements, error } = useAnnouncements();
+  const { announcements, error, loading } = useAnnouncements();
 
   return (
     <div style={{ paddingTop: '8rem', paddingBottom: '4rem', minHeight: '100vh' }} className="container mx-auto px-4 max-w-4xl">
@@ -13,7 +13,7 @@ export default function AnnouncementsPage() {
         <p style={{ color: '#aaa', fontSize: '1.1rem' }}>Stay up to date with the latest broadcasts from the Gamemakers.</p>
       </div>
       
-      <AnnouncementsFeed announcements={announcements} error={error} />
+      <AnnouncementsFeed announcements={announcements} error={error} loading={loading} />
     </div>
   );
 }

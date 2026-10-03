@@ -31,50 +31,37 @@ export default function Navbar() {
   }, [user]);
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      padding: '1rem 2rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      zIndex: 1000,
-      background: 'rgba(10, 10, 10, 0.95)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid rgba(212, 175, 55, 0.2)'
-    }}>
-      <div>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img src="/mockingjay-logo.jpg" alt="Logo" style={{ height: '40px', width: '40px', borderRadius: '50%', objectFit: 'cover' }} />
-          <h2 style={{ fontSize: '1.5rem', color: 'var(--accent-gold)', margin: 0 }}>
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <Link href="/" className="navbar-brand-link">
+          <img src="/mockingjay-logo.jpg" alt="Logo" className="navbar-logo" />
+          <h2 className="navbar-title">
             The Industry Games
           </h2>
         </Link>
       </div>
       
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-        <Link href="/announcements" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
+      <div className="navbar-links">
+        <Link href="/announcements" className="navbar-link">
           Announcements
         </Link>
-        <Link href="/#timeline" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
+        <Link href="/#timeline" className="navbar-link">
           Timeline
         </Link>
-        <Link href="/#problems" style={{ fontSize: '1rem', transition: 'color 0.3s' }}>
+        <Link href="/#problems" className="navbar-link">
           Problem Statements
         </Link>
         {isAdmin && (
-          <Link href="/admin" style={{ fontSize: '1rem', color: 'var(--accent-orange)', transition: 'color 0.3s' }}>
+          <Link href="/admin" className="navbar-link admin-link">
             Command Center
           </Link>
         )}
         {user ? (
-          <Link href="/dashboard" className="btn btn-primary">
+          <Link href="/dashboard" className="btn btn-primary navbar-btn">
             Dashboard
           </Link>
         ) : (
-          <Link href="/login" className="btn btn-primary">
+          <Link href="/login" className="btn btn-primary navbar-btn">
             Register
           </Link>
         )}

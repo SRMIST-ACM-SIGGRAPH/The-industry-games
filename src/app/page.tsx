@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { useLenis } from 'lenis/react';
 import { motion } from 'framer-motion';
 import HeroCanvas from '@/components/canvas/HeroCanvas';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -9,6 +11,14 @@ import AnnouncementsTicker from '@/components/announcements/AnnouncementsTicker'
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 
 export default function Home() {
+  const lenis = useLenis();
+  const scrollTo = (id: string) => {
+    if (lenis) {
+      lenis.scrollTo(id);
+    } else {
+      document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <main>
       {/* Live Announcement Ticker */}
@@ -105,38 +115,61 @@ export default function Home() {
             transition={{ delay: 0.95, duration: 0.8 }}
             style={{
               display: 'flex',
-              gap: '1rem',
+              flexDirection: 'column',
+              gap: '1.5rem',
               marginTop: '2rem',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
+              alignItems: 'center',
               pointerEvents: 'auto',
             }}
           >
-            <a
-              href="#problems"
-              className="btn btn-primary"
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                onClick={(e) => { e.preventDefault(); scrollTo('#problems'); }}
+                className="btn btn-primary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.85rem',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                EXPLORE THE ARENA <span aria-hidden="true">↗</span>
+              </button>
+              <Link
+                href="/login"
+                className="btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  fontSize: '0.85rem',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                REGISTER
+              </Link>
+            </div>
+            
+            <button
+              onClick={(e) => { e.preventDefault(); scrollTo('#timeline'); }}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.85rem',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--accent-gold)',
+                textDecoration: 'underline',
+                textUnderlineOffset: '4px',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-display)',
                 letterSpacing: '0.1em',
+                padding: '0.5rem',
+                transition: 'opacity 0.3s'
               }}
-            >
-              EXPLORE THE ARENA <span aria-hidden="true">↗</span>
-            </a>
-            <a
-              href="#timeline"
-              className="btn"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                fontSize: '0.85rem',
-                letterSpacing: '0.1em',
-              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
               VIEW THE SCHEDULE
-            </a>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -144,19 +177,41 @@ export default function Home() {
       {/* Timeline Section */}
       <TimelineSection />
 
-      {/* Arena Awaits Separator Image */}
-      <section style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '4rem 1.5rem 0' }}>
-        <img 
-          src="/arena-awaits.jpg" 
-          alt="The Arena Awaits" 
+      {/* Arena Awaits Text Separator */}
+      <section style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8rem 1.5rem', textAlign: 'center' }}>
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           style={{ 
-            maxWidth: '100%', 
-            height: 'auto', 
-            borderRadius: '12px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
-            border: '1px solid rgba(212, 175, 55, 0.2)'
-          }} 
-        />
+            fontSize: 'clamp(2.5rem, 5vw, 4rem)', 
+            color: 'var(--accent-gold)', 
+            fontFamily: 'var(--font-display)',
+            textShadow: '0 0 20px rgba(212, 175, 55, 0.4)',
+            marginBottom: '2rem',
+            letterSpacing: '0.05em'
+          }}
+        >
+          THE ARENA AWAITS
+        </motion.h2>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          style={{ 
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)', 
+            letterSpacing: '0.2em', 
+            lineHeight: 2,
+            color: '#ccc',
+            fontFamily: 'var(--font-display)',
+            textTransform: 'uppercase'
+          }}
+        >
+          <div>Choose Your District.</div>
+          <div>Forge Your Solution.</div>
+          <div style={{ color: 'var(--accent-orange)', marginTop: '0.5rem', fontWeight: 'bold' }}>Claim The Crown.</div>
+        </motion.div>
       </section>
 
       {/* Problem Statements Section */}
