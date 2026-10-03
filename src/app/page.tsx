@@ -96,7 +96,7 @@ export default function Home() {
               textShadow: '0 2px 10px rgba(0, 0, 0, 0.8)',
             }}
           >
-            Welcome to the 75th Annual Industry Games. Form your alliances, prepare your algorithms, and fight for survival in the ultimate coding arena.
+            Welcome to the 1st Annual Industry Games. Form your alliances, prepare your algorithms, and fight for survival in the ultimate coding arena.
           </motion.p>
 
           {/* Event Countdown Timer from main */}
