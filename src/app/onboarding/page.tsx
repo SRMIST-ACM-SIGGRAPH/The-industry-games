@@ -7,22 +7,6 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { getProfile, isProfileComplete } from '@/lib/profile';
 
-const DEPARTMENTS = [
-  'CSE - Core',
-  'CSE - AI & ML',
-  'CSE - Data Science',
-  'CSE - Cyber Security',
-  'CSE - IoT',
-  'Information Technology',
-  'ECE',
-  'EEE',
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Biotechnology',
-  'Mechatronics',
-  'Other',
-];
-
 // SRMIST registration numbers look like RA2611003010123 (RA + 13 digits).
 const REG_PATTERN = /^RA\d{13}$/i;
 const PHONE_PATTERN = /^[6-9]\d{9}$/; // 10-digit Indian mobile
@@ -43,7 +27,6 @@ export default function Onboarding() {
   const [collegeEmail, setCollegeEmail] = useState('');
   const [regNumber, setRegNumber] = useState('');
   const [department, setDepartment] = useState('');
-  const [otherDepartment, setOtherDepartment] = useState('');
   const [academicYear, setAcademicYear] = useState('');
   const [phone, setPhone] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
@@ -89,14 +72,7 @@ export default function Onboarding() {
       }
 
       if (profile?.registration_number) setRegNumber(profile.registration_number);
-      if (profile?.department) {
-        if (DEPARTMENTS.includes(profile.department)) {
-          setDepartment(profile.department);
-        } else {
-          setDepartment('Other');
-          setOtherDepartment(profile.department);
-        }
-      }
+      if (profile?.department) setDepartment(profile.department);
       if (profile?.academic_year) setAcademicYear(profile.academic_year);
       if (profile?.phone_number) setPhone(profile.phone_number);
       if (profile?.github_url) setGithubUrl(profile.github_url);
@@ -118,9 +94,7 @@ export default function Onboarding() {
       case 'regNumber':
         return REG_PATTERN.test(value.trim()) ? '' : 'Enter a valid SRM registration number (e.g. RA2611003010123).';
       case 'department':
-        return value ? '' : 'Please select your department / branch.';
-      case 'otherDepartment':
-        return value.trim() ? '' : 'Please specify your department.';
+        return value.trim() ? '' : 'Department / Branch is required.';
       case 'academicYear':
         return value ? '' : 'Please select your academic year.';
       case 'phone':
@@ -138,9 +112,6 @@ export default function Onboarding() {
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    // For 'otherDepartment', validate only if department is 'Other'
-    if (id === 'otherDepartment' && department !== 'Other') return;
-    
     const errorMsg = validateField(id, value);
     setErrors((prev) => ({ ...prev, [id]: errorMsg }));
   };
@@ -151,7 +122,6 @@ export default function Onboarding() {
       collegeEmail: validateField('collegeEmail', collegeEmail),
       regNumber: validateField('regNumber', regNumber),
       department: validateField('department', department),
-      otherDepartment: department === 'Other' ? validateField('otherDepartment', otherDepartment) : '',
       academicYear: validateField('academicYear', academicYear),
       phone: validateField('phone', phone),
       githubUrl: validateField('githubUrl', githubUrl),
@@ -173,8 +143,6 @@ export default function Onboarding() {
     }
 
     setSubmitting(true);
-    
-    const finalDepartment = department === 'Other' ? otherDepartment.trim() : department;
 
     const { error: upsertError } = await supabase.from('profiles').upsert(
       {
@@ -182,7 +150,7 @@ export default function Onboarding() {
         full_name: fullName.trim(),
         college_email: collegeEmail.trim(),
         registration_number: regNumber.trim().toUpperCase(),
-        department: finalDepartment,
+        department: department.trim(),
         academic_year: academicYear,
         phone_number: phone.trim(),
         github_url: githubUrl.trim() || null,
@@ -313,40 +281,17 @@ export default function Onboarding() {
 
           <div className="form-group">
             <label htmlFor="department">Department / Branch</label>
-            <select
+            <input
               id="department"
               className={`input-field ${errors.department ? 'border-red-500' : ''}`}
+              type="text"
               value={department}
               onChange={(e) => { setDepartment(e.target.value); setErrors(p => ({...p, department: ''})) }}
               onBlur={handleBlur}
-            >
-              <option value="" disabled>
-                Select your district…
-              </option>
-              {DEPARTMENTS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+              placeholder="e.g. CTech, CINTEL..."
+            />
             {renderFieldError('department')}
           </div>
-
-          {department === 'Other' && (
-            <div className="form-group">
-              <label htmlFor="otherDepartment">Specify Department</label>
-              <input
-                id="otherDepartment"
-                className={`input-field ${errors.otherDepartment ? 'border-red-500' : ''}`}
-                type="text"
-                value={otherDepartment}
-                onChange={(e) => { setOtherDepartment(e.target.value); setErrors(p => ({...p, otherDepartment: ''})) }}
-                onBlur={handleBlur}
-                placeholder="e.g. Architecture"
-              />
-              {renderFieldError('otherDepartment')}
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="academicYear">Academic Year</label>
