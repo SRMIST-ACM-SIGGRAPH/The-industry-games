@@ -206,14 +206,20 @@ export default function Dashboard() {
               <dd>{profile?.college_email || user?.email}</dd>
             </div>
           </dl>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-            <a href={profile?.github_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
-              <GithubIcon /> GitHub
-            </a>
-            <a href={profile?.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
-              <LinkedinIcon /> LinkedIn
-            </a>
-          </div>
+          {(profile?.github_url || profile?.linkedin_url) && (
+            <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+              {profile?.github_url && (
+                <a href={profile.github_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                  <GithubIcon /> GitHub
+                </a>
+              )}
+              {profile?.linkedin_url && (
+                <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                  <LinkedinIcon /> LinkedIn
+                </a>
+              )}
+            </div>
+          )}
         </motion.section>
 
         {/* Alliance / team status */}

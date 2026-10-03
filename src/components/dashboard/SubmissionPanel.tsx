@@ -315,19 +315,21 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
                   onChange={handleProblemStatementChange}
                   disabled={loading}
                   style={{ 
-                    padding: '0.75rem', 
+                    padding: '0.85rem', 
                     fontSize: '0.95rem', 
                     cursor: loading ? 'wait' : 'pointer',
-                    background: 'rgba(20, 20, 20, 0.9)',
-                    color: 'var(--foreground)'
+                    background: 'var(--background)',
+                    color: 'var(--accent-gold)',
+                    border: '1px solid var(--border-color)',
+                    fontFamily: 'var(--font-sans)',
                   }}
                 >
-                  <option value="" disabled style={{ background: '#111', color: '#888' }}>Select your arena challenge...</option>
-                  <option value="1. Project Portfolio Management & Risk Monitoring Platform (District 02)" style={{ background: '#111', color: '#fff' }}>1. Project Portfolio Management & Risk Monitoring Platform (District 02)</option>
-                  <option value="2. AI-Powered Lead Generation & Sales Automation (District 03)" style={{ background: '#111', color: '#fff' }}>2. AI-Powered Lead Generation & Sales Automation (District 03)</option>
-                  <option value="3. AI-Native Education OS for Intelligent Doubt Resolution (District 04)" style={{ background: '#111', color: '#fff' }}>3. AI-Native Education OS for Intelligent Doubt Resolution (District 04)</option>
-                  <option value="4. AI-Native EMR for Intelligent Clinical Assistance (District 05)" style={{ background: '#111', color: '#fff' }}>4. AI-Native EMR for Intelligent Clinical Assistance (District 05)</option>
-                  <option value="5. Intelligent Business Operations & Customer Engagement (District 06)" style={{ background: '#111', color: '#fff' }}>5. Intelligent Business Operations & Customer Engagement (District 06)</option>
+                  <option value="" disabled style={{ background: 'var(--background)', color: '#888' }}>Select your arena challenge...</option>
+                  <option value="District 01: Project Portfolio Management & Risk Monitoring Platform" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>District 01: Project Portfolio Management & Risk Monitoring Platform</option>
+                  <option value="District 02: AI-Powered Lead Generation & Sales Automation" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>District 02: AI-Powered Lead Generation & Sales Automation</option>
+                  <option value="District 03: AI-Native Education OS for Intelligent Doubt Resolution" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>District 03: AI-Native Education OS for Intelligent Doubt Resolution</option>
+                  <option value="District 04: AI-Native EMR for Intelligent Clinical Assistance" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>District 04: AI-Native EMR for Intelligent Clinical Assistance</option>
+                  <option value="District 05: Intelligent Business Operations & Customer Engagement" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>District 05: Intelligent Business Operations & Customer Engagement</option>
                 </select>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
                   For full dossier details, check the <a href="#problem-statements" style={{ color: 'var(--accent-gold)' }}>Problem Statements section below</a>.

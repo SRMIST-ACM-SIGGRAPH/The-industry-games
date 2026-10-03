@@ -7,30 +7,30 @@ export const TIMELINE_EVENTS = [
   {
     id: 1,
     phase: 'Phase 01',
-    date: 'Oct 15',
+    date: 'Oct 03',
     event: 'Reaping Day (Registration Opens)',
     subtitle: 'SRMIST District Enrollment & Tributes Roster',
   },
   {
     id: 2,
     phase: 'Phase 02',
-    date: 'Nov 1',
+    date: 'Oct 07',
     event: 'Training Center (Registration Closes)',
-    subtitle: 'Alliance Lockdown & Final Team Confirmation',
+    subtitle: 'Alliance Lockdown & Final Team Submission',
   },
   {
     id: 3,
     phase: 'Phase 03',
-    date: 'Nov 5',
-    event: 'Interviews (PPT Submissions Due)',
-    subtitle: 'Gamemaker Evaluation & Strategy Pitch Deck',
+    date: 'Oct 08',
+    event: 'Tribute Selection (Results Announced)',
+    subtitle: 'Shortlisted Alliances Announced for the Arena',
   },
   {
     id: 4,
     phase: 'Phase 04',
-    date: 'Nov 10',
-    event: 'The Arena (Hackathon Commences)',
-    subtitle: 'The Cornucopia Opens // Non-stop Engineering Sprint',
+    date: 'Oct 09',
+    event: 'The Arena (Event Day)',
+    subtitle: 'The Cornucopia Opens — Live Hackathon & Gamemaker Evaluation',
   },
 ];
 
@@ -85,7 +85,7 @@ export default function TimelineSection() {
             marginBottom: '0.75rem',
           }}
         >
-          {'Arena Milestones // The Protocol'}
+          {'Arena Milestones - The Protocol'}
         </motion.span>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

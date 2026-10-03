@@ -116,8 +116,10 @@ export default function Onboarding() {
       case 'phone':
         return PHONE_PATTERN.test(value.trim()) ? '' : 'Enter a valid 10-digit mobile number.';
       case 'githubUrl':
+        if (!value.trim()) return '';
         return GITHUB_PATTERN.test(value.trim()) ? '' : 'Enter a valid GitHub profile URL.';
       case 'linkedinUrl':
+        if (!value.trim()) return '';
         return LINKEDIN_PATTERN.test(value.trim()) ? '' : 'Enter a valid LinkedIn profile URL.';
       default:
         return '';
@@ -173,8 +175,8 @@ export default function Onboarding() {
         department: finalDepartment,
         academic_year: academicYear,
         phone_number: phone.trim(),
-        github_url: githubUrl.trim(),
-        linkedin_url: linkedinUrl.trim(),
+        github_url: githubUrl.trim() || null,
+        linkedin_url: linkedinUrl.trim() || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'id' }
@@ -342,7 +344,9 @@ export default function Onboarding() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="githubUrl">GitHub Profile URL</label>
+            <label htmlFor="githubUrl">
+              GitHub Profile URL <span style={{ opacity: 0.5, fontSize: '0.8rem', fontWeight: 'normal' }}>(Optional)</span>
+            </label>
             <input
               id="githubUrl"
               className={`input-field ${errors.githubUrl ? 'border-red-500' : ''}`}
@@ -356,7 +360,9 @@ export default function Onboarding() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="linkedinUrl">LinkedIn Profile URL</label>
+            <label htmlFor="linkedinUrl">
+              LinkedIn Profile URL <span style={{ opacity: 0.5, fontSize: '0.8rem', fontWeight: 'normal' }}>(Optional)</span>
+            </label>
             <input
               id="linkedinUrl"
               className={`input-field ${errors.linkedinUrl ? 'border-red-500' : ''}`}

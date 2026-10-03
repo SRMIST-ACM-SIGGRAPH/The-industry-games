@@ -2,31 +2,38 @@
 
 import { motion } from 'framer-motion';
 import ProblemCard, { ProblemStatement } from './ProblemCard';
+import { Download } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export const PROBLEM_STATEMENTS: ProblemStatement[] = [
   {
     id: 1,
-    title: '1. Project Portfolio Management & Risk Monitoring Platform (District 02)',
+    district: 1,
+    title: 'Project Portfolio Management & Risk Monitoring Platform',
     desc: 'Develop a Project Portfolio Management (PPM) platform for a fire and rescue organization to manage multiple projects, track their progress, identify risks, and provide management with a consolidated view of portfolio performance.',
   },
   {
     id: 2,
-    title: '2. AI-Powered Lead Generation & Sales Automation (District 03)',
+    district: 2,
+    title: 'AI-Powered Lead Generation & Sales Automation',
     desc: 'Develop an AI-powered sales intelligence and lead automation platform that can identify potential customers, research companies, qualify leads, prepare personalized outreach, and track opportunities.',
   },
   {
     id: 3,
-    title: '3. AI-Native Education OS for Intelligent Doubt Resolution (District 04)',
+    district: 3,
+    title: 'AI-Native Education OS for Intelligent Doubt Resolution',
     desc: 'Build an AI-powered education platform that helps students receive the right assistance for their doubts at the right time using AI explanations, practice, or relevant human teachers.',
   },
   {
     id: 4,
-    title: '4. AI-Native EMR for Intelligent Clinical Assistance (District 05)',
+    district: 4,
+    title: 'AI-Native EMR for Intelligent Clinical Assistance',
     desc: 'Develop an AI-powered Electronic Medical Record platform that helps healthcare professionals capture, organize, understand, and retrieve patient information efficiently.',
   },
   {
     id: 5,
-    title: '5. Intelligent Business Operations & Customer Engagement (District 06)',
+    district: 5,
+    title: 'Intelligent Business Operations & Customer Engagement',
     desc: 'Build a smart and scalable business management platform that intelligently leverages organizational and customer data to streamline operations, automate routine processes, and identify actionable business opportunities.',
   },
 ];
@@ -82,6 +89,25 @@ export default function ProblemCardsSection() {
         >
           Each district presents a distinct engineering trial designed by the Gamemakers. Choose your battleground and formulate your winning strategy.
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          style={{ marginTop: '1.75rem' }}
+        >
+          <a
+            href={supabase.storage.from('event-posters').getPublicUrl('The_Industry_Games_2026_Problem_Statements.pdf').data.publicUrl}
+            download="The_Industry_Games_2026_Problem_Statements.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 1.4rem', fontSize: '0.82rem' }}
+          >
+            <Download size={16} />
+            Download Official Dossier (PDF)
+          </a>
+        </motion.div>
       </div>
 
       {/* 6 Problem Statement Cards Responsive Grid */}

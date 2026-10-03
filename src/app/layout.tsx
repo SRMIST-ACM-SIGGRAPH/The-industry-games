@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 import LenisProvider from '@/components/providers/LenisProvider';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import AnnouncementsTicker from '@/components/announcements/AnnouncementsTicker';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'The Industry Games | Hackathon',
@@ -17,8 +20,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LenisProvider>
-          <Navbar />
+          <header className="app-header">
+            <AnnouncementsTicker />
+            <Navbar />
+          </header>
           {children}
+          <Footer />
+          <Analytics />
         </LenisProvider>
       </body>
     </html>

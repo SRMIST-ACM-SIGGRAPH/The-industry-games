@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 
 export interface ProblemStatement {
   id: number;
+  district: number;
   title: string;
   desc: string;
 }
@@ -78,20 +79,7 @@ export default function ProblemCard({ problem, index }: ProblemCardProps) {
         >
           <span
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '2rem',
-              fontWeight: 700,
-              color: 'var(--accent-gold)',
-              lineHeight: 1,
-              letterSpacing: '0.05em',
-              textShadow: '0 0 15px rgba(212, 175, 55, 0.4)',
-            }}
-          >
-            {formattedId}
-          </span>
-          <span
-            style={{
-              fontSize: '0.75rem',
+              fontSize: '0.9rem',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
               color: 'var(--accent-orange)',
@@ -99,7 +87,7 @@ export default function ProblemCard({ problem, index }: ProblemCardProps) {
               opacity: 0.85,
             }}
           >
-            {`Arena Challenge`}
+            DISTRICT {String(problem.district).padStart(2, '0')}
           </span>
         </div>
 

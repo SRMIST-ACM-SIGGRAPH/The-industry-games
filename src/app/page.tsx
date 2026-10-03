@@ -7,7 +7,6 @@ import HeroCanvas from '@/components/canvas/HeroCanvas';
 import CountdownTimer from '@/components/CountdownTimer';
 import TimelineSection from '@/components/landing/TimelineSection';
 import ProblemCardsSection from '@/components/landing/ProblemCardsSection';
-import AnnouncementsTicker from '@/components/announcements/AnnouncementsTicker';
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
 
 export default function Home() {
@@ -21,9 +20,6 @@ export default function Home() {
   };
   return (
     <main>
-      {/* Live Announcement Ticker */}
-      <AnnouncementsTicker />
-
       {/* Hero Section with 3D Background */}
       <section style={{ minHeight: '100dvh', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         <HeroCanvas />
@@ -72,6 +68,7 @@ export default function Home() {
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 5rem)',
               color: 'var(--accent-gold)',
+              marginTop: '4rem',
               marginBottom: '1rem',
               textShadow: '0 0 35px rgba(212, 175, 55, 0.3)',
             }}
@@ -179,6 +176,14 @@ export default function Home() {
 
       {/* Arena Awaits Text Separator */}
       <section style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8rem 1.5rem', textAlign: 'center' }}>
+        <motion.img 
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          src="/mockingjay-logo.jpg" 
+          alt="Mockingjay Logo" 
+          style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '2rem', objectFit: 'cover', boxShadow: '0 0 30px rgba(212, 175, 55, 0.2)' }}
+        />
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

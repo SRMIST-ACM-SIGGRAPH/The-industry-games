@@ -9,15 +9,15 @@ export interface Profile {
   department: string;
   academic_year: string;
   phone_number: string;
-  github_url: string;
-  linkedin_url: string;
+  github_url?: string | null;
+  linkedin_url?: string | null;
+  is_admin?: boolean;
   created_at?: string;
   updated_at?: string;
 }
 
 // A profile only counts as "complete" when every mandatory onboarding
-// field is present. The /dashboard guard uses this to decide whether a
-// tribute still needs to be sent to /onboarding.
+// field is present. GitHub and LinkedIn are optional.
 export function isProfileComplete(profile: Profile | null): boolean {
   if (!profile) return false;
   return Boolean(
@@ -26,9 +26,7 @@ export function isProfileComplete(profile: Profile | null): boolean {
       profile.registration_number?.trim() &&
       profile.department?.trim() &&
       profile.academic_year?.trim() &&
-      profile.phone_number?.trim() &&
-      profile.github_url?.trim() &&
-      profile.linkedin_url?.trim()
+      profile.phone_number?.trim()
   );
 }
 

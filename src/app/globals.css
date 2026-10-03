@@ -21,11 +21,20 @@
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.6;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 a {
@@ -70,9 +79,9 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   color: var(--accent-gold);
   border: 1px solid var(--accent-gold);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.82rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -254,69 +263,141 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- Navbar --- */
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem 2rem;
+  width: 100%;
+  padding: 0.65rem 2.5rem;
   display: flex;
-  justifyContent: space-between;
+  justify-content: space-between;
   align-items: center;
-  z-index: 1000;
   background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  box-sizing: border-box;
+  gap: 1.5rem;
+}
+.navbar-brand {
+  flex-shrink: 0;
 }
 .navbar-brand-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 .navbar-logo {
-  height: 32px;
-  width: 32px;
+  height: 28px;
+  width: 28px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 .navbar-title {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   color: var(--accent-gold);
   margin: 0;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 .navbar-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
+  flex-shrink: 0;
 }
 .navbar-link {
-  font-size: 0.9rem;
-  transition: color 0.3s;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.navbar-link:hover {
+  color: var(--accent-gold);
 }
 .admin-link {
   color: var(--accent-orange);
 }
+.navbar-btn {
+  padding: 0.35rem 0.9rem !important;
+  font-size: 0.78rem !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap;
+  border-radius: 2px;
+}
 
-@media (max-width: 768px) {
+@media (max-width: 1280px) {
   .navbar {
-    padding: 0.5rem 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 0.6rem 1.5rem;
+    gap: 1rem;
+  }
+  .navbar-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+  }
+  .navbar-links {
+    gap: 0.9rem;
+  }
+  .navbar-link {
+    font-size: 0.8rem;
+  }
+  .navbar-btn {
+    padding: 0.3rem 0.8rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0.55rem 1rem;
     gap: 0.75rem;
+  }
+  .navbar-title {
+    font-size: 0.88rem;
   }
   .navbar-links {
     gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
   }
   .navbar-link {
     font-size: 0.75rem;
+  }
+  .navbar-btn {
+    padding: 0.28rem 0.7rem !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem 0.75rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .navbar-brand-link {
+    gap: 0.5rem;
   }
   .navbar-logo {
     height: 24px;
     width: 24px;
   }
   .navbar-title {
-    font-size: 1rem;
+    font-size: 0.82rem;
+  }
+  .navbar-links {
+    width: 100%;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .navbar-link {
+    font-size: 0.72rem;
+  }
+  .navbar-btn {
+    padding: 0.25rem 0.6rem !important;
+    font-size: 0.7rem !important;
   }
 }
 
@@ -426,6 +507,10 @@ select.input-field { appearance: none; cursor: pointer; }
   gap: 1rem;
   border-bottom: 1px dashed var(--border-color);
   padding-bottom: 0.5rem;
+}
+.profile-badge__meta > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 .profile-badge__meta dt { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .profile-badge__meta dd { color: var(--foreground); font-size: 0.9rem; text-align: right; word-break: break-word; }
@@ -602,11 +687,8 @@ select.input-field { appearance: none; cursor: pointer; }
 
 /* Landing Page Ticker */
 .ticker {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1100;
+  position: relative;
+  z-index: 1001;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -628,11 +710,16 @@ select.input-field { appearance: none; cursor: pointer; }
 
 .ticker-track {
   display: inline-flex;
-  animation: ticker-scroll 30s linear infinite;
+  animation: ticker-scroll 28s linear infinite;
+  will-change: transform;
+}
+
+.ticker-viewport:hover .ticker-track {
+  animation-play-state: paused;
 }
 
 .ticker-message {
-  padding-right: 4rem;
+  padding-right: 6rem;
   color: var(--foreground);
   font-size: 0.95rem;
 }
@@ -647,8 +734,8 @@ select.input-field { appearance: none; cursor: pointer; }
 }
 
 @keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
 }
 
 /* Announcements Modal */
@@ -677,5 +764,45 @@ select.input-field { appearance: none; cursor: pointer; }
 .modal-scroll {
   overflow-y: auto;
   max-height: 60vh;
+}
 
+.footer-social-link {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-social-link:hover {
+  color: var(--accent-orange);
+  transform: translateY(-2px);
+}
+
+.footer-email-link {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-email-link:hover {
+  color: var(--accent-orange);
+}
+
+.footer-website-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-website-link:hover {
+  color: var(--accent-gold);
 }

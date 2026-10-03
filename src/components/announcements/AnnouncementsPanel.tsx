@@ -16,7 +16,7 @@ export default function AnnouncementsPanel() {
       className="admin-panel"
       style={{ background: 'var(--panel-bg)', border: '1px solid var(--border-color)', padding: '2rem' }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
         <h2 style={{ color: 'var(--accent-gold)', fontSize: '1.5rem' }}>Announcements</h2>
         <Link href="/announcements" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
           View All Announcements

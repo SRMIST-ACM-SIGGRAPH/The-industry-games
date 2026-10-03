@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   department TEXT NOT NULL,
   academic_year TEXT NOT NULL,
   phone_number TEXT NOT NULL,
-  github_url TEXT NOT NULL,
-  linkedin_url TEXT NOT NULL,
+  github_url TEXT,
+  linkedin_url TEXT,
   is_admin BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -33,6 +33,7 @@ CREATE TABLE public.ig_teams (
   payment_proof_url TEXT,
   payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'verified', 'rejected')),
   verified_by UUID REFERENCES public.profiles(id),
+  problem_statement TEXT,
   submission_url TEXT,
   is_submitted BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW(),
