@@ -97,7 +97,7 @@ export default function ProblemCardsSection() {
           style={{ marginTop: '1.75rem' }}
         >
           <a
-            href={supabase.storage.from('event-posters').getPublicUrl('The_Industry_Games_2026_Problem_Statements.pdf').data.publicUrl}
+            href="/The_Industry_Games_2026_Problem_Statements.pdf"
             download="The_Industry_Games_2026_Problem_Statements.pdf"
             target="_blank"
             rel="noopener noreferrer"

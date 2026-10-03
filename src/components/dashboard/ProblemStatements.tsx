@@ -3,9 +3,8 @@ import { supabase } from '@/lib/supabase';
 import { BookOpen, Download } from 'lucide-react';
 
 export default function ProblemStatements() {
-  // Get the public URL for the PDF stored in the 'event-posters' bucket
-  const { data } = supabase.storage.from('event-posters').getPublicUrl('The_Industry_Games_2026_Problem_Statements.pdf');
-  const pdfUrl = data.publicUrl;
+  const pdfPath = '/The_Industry_Games_2026_Problem_Statements.pdf';
+  const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${pdfPath}` : `https://industrygames.srmacmsiggraph.dev${pdfPath}`;
 
   return (
     <motion.section
@@ -29,7 +28,7 @@ export default function ProblemStatements() {
           <h2 className="panel__title" style={{ margin: 0 }}>Official Problem Statements</h2>
         </div>
         <a
-          href={pdfUrl}
+          href={pdfPath}
           download="The_Industry_Games_2026_Problem_Statements.pdf"
           target="_blank"
           rel="noopener noreferrer"
@@ -47,7 +46,7 @@ export default function ProblemStatements() {
 
       <div style={{ flex: 1, border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', overflow: 'hidden', background: '#e5e5e5' }}>
         <iframe 
-          src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`} 
+          src={`https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`} 
           title="Problem Statements PDF"
           style={{ width: '100%', height: '100%', minHeight: '700px', border: 'none' }}
         />
@@ -55,7 +54,7 @@ export default function ProblemStatements() {
 
       <div style={{ textAlign: 'center', marginTop: '1rem' }}>
         <a 
-          href={pdfUrl} 
+          href={pdfPath} 
           target="_blank" 
           rel="noopener noreferrer" 
           style={{ fontSize: '0.85rem', color: 'var(--accent-gold)', textDecoration: 'underline' }}
