@@ -72,6 +72,18 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
     return () => clearInterval(interval);
   }, []);
 
+  const isEffectivelySubmitted = team.isSubmitted || (submissionClosed && Boolean(team.submissionUrl));
+
+  useEffect(() => {
+    if (submissionClosed && team.submissionUrl && !team.isSubmitted) {
+      supabase
+        .from('ig_teams')
+        .update({ is_submitted: true })
+        .eq('id', team.id)
+        .then(() => fetchFullTeam(team.id));
+    }
+  }, [submissionClosed, team.submissionUrl, team.isSubmitted, team.id, fetchFullTeam]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
@@ -301,7 +313,7 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
           {error}
         </p>}
         
-        {team.isSubmitted ? (
+        {isEffectivelySubmitted ? (
           <div style={{ 
             background: 'rgba(212, 175, 55, 0.08)', 
             padding: '2.5rem', 

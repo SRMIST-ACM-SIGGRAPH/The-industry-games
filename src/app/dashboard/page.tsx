@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { getProfile, isProfileComplete, Profile } from '@/lib/profile';
 import CountdownTimer from '@/components/CountdownTimer';
-import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
+import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL, isSubmissionClosed } from '@/lib/event';
 import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
@@ -42,6 +42,11 @@ export default function Dashboard() {
       .eq('team_id', teamId);
       
     if (teamData) {
+      if (isSubmissionClosed() && teamData.submission_url && !teamData.is_submitted) {
+        teamData.is_submitted = true;
+        supabase.from('ig_teams').update({ is_submitted: true }).eq('id', teamData.id).then();
+      }
+
       setTeam({
         id: teamData.id,
         name: teamData.name,
@@ -98,6 +103,11 @@ export default function Dashboard() {
           .eq('team_id', memberData.team_id);
           
         if (teamData) {
+          if (isSubmissionClosed() && teamData.submission_url && !teamData.is_submitted) {
+            teamData.is_submitted = true;
+            supabase.from('ig_teams').update({ is_submitted: true }).eq('id', teamData.id).then();
+          }
+
           initialTeam = {
             id: teamData.id,
             name: teamData.name,

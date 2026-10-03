@@ -223,7 +223,7 @@ export default function Onboarding() {
             Registrations Have Concluded
           </h1>
           <p className="onboarding__subtitle" style={{ marginBottom: '2rem' }}>
-            The registration window for the 75th Annual Industry Games has closed. New tributes can no longer be enrolled into the arena.
+            The registration window for the 1st Annual Industry Games has closed. New tributes can no longer be enrolled into the arena.
           </p>
           <button
             className="btn"
