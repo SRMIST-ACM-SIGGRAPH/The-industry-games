@@ -157,9 +157,13 @@ export default function Dashboard() {
         .toUpperCase()
     : '??';
 
+  const isTeamSizeValid = Boolean(team && team.members.length >= 2 && team.members.length <= 4);
   const readiness = [
     { label: 'Profile completed', done: true },
-    { label: 'Alliance formed', done: Boolean(team) },
+    { 
+      label: team ? `Alliance formed (${team.members.length}/4 tributes${team.members.length < 2 ? ' — min 2 required' : ''})` : 'Alliance formed (min 2, max 4)', 
+      done: isTeamSizeValid 
+    },
     { label: 'Project locked & submitted', done: Boolean(team?.isSubmitted) },
   ];
 
@@ -254,9 +258,11 @@ export default function Dashboard() {
             ))}
           </ul>
           <p className="readiness__hint">
-            {team
-              ? 'Your alliance is assembled. Prepare your submission before the deadline.'
-              : 'Join or create an alliance to unlock submissions.'}
+            {!team
+              ? 'Join or create an alliance of 2 to 4 tributes to unlock submissions.'
+              : team.members.length < 2
+              ? 'Invite at least 1 more tribute to your alliance (minimum 2 required).'
+              : 'Your alliance is assembled. Prepare your submission before the deadline.'}
           </p>
         </motion.section>
 

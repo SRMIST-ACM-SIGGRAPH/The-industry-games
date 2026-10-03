@@ -200,6 +200,14 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
       setError('Submissions have closed for this event.');
       return;
     }
+    if (team.members.length < 2) {
+      setError('Alliances must have at least 2 tributes before locking submission (min 2, max 4).');
+      return;
+    }
+    if (team.members.length > 4) {
+      setError('Alliances cannot exceed 4 tributes.');
+      return;
+    }
     setShowConfirmModal(false);
 
     setLoading(true);
@@ -475,13 +483,32 @@ export default function SubmissionPanel({ team, fetchFullTeam }: SubmissionPanel
                 justifyContent: 'center'
               }}>
                 <h3 style={{ color: 'var(--accent-gold)', margin: '0 0 1rem 0', fontSize: '1.2rem', fontFamily: 'var(--font-display)' }}>Lock In Your Submission</h3>
-                <p style={{ fontSize: '0.95rem', color: '#ccc', margin: '0 0 1.5rem 0', lineHeight: 1.6 }}>
+                <p style={{ fontSize: '0.95rem', color: '#ccc', margin: '0 0 1.25rem 0', lineHeight: 1.6 }}>
                   Once you lock and submit, your presentation file becomes immutable and cannot be changed. Submissions strictly close after the 5-minute grace period at <strong>{SUBMISSION_DEADLINE_LABEL}</strong>.
                 </p>
+
+                {team.members.length < 2 && (
+                  <div style={{
+                    marginBottom: '1.25rem',
+                    padding: '0.75rem 1rem',
+                    background: 'rgba(255, 165, 0, 0.1)',
+                    border: '1px solid rgba(255, 165, 0, 0.3)',
+                    borderRadius: '6px',
+                    color: '#ffb74d',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <AlertTriangle size={18} color="#ffb74d" style={{ flexShrink: 0 }} />
+                    <span>Alliance must have at least 2 tributes before locking submission (Current: {team.members.length}/4).</span>
+                  </div>
+                )}
+
                 <button 
                   className="btn btn-primary" 
-                  style={{ width: '100%', opacity: !team.submissionReady || loading ? 0.5 : 1, padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                  disabled={!team.submissionReady || loading}
+                  style={{ width: '100%', opacity: !team.submissionReady || team.members.length < 2 || team.members.length > 4 || loading ? 0.5 : 1, padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                  disabled={!team.submissionReady || team.members.length < 2 || team.members.length > 4 || loading}
                   onClick={() => setShowConfirmModal(true)}
                 >
                   <Lock size={18} /> Lock & Submit Project

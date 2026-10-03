@@ -261,7 +261,12 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
 
 
           <div style={{ flexGrow: 1 }}>
-            <span className="alliance__code-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Roster</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+              <span className="alliance__code-label" style={{ margin: 0 }}>Roster</span>
+              <span style={{ fontSize: '0.8rem', color: team.members.length < 2 ? '#ffb74d' : 'var(--accent-gold)' }}>
+                {team.members.length} / 4 Tributes {team.members.length < 2 ? '(Min 2)' : ''}
+              </span>
+            </div>
             <ul className="alliance__roster" style={{ margin: '0' }}>
               {team.members.map((m) => (
                 <li key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', color: '#ddd' }}>
@@ -270,6 +275,36 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                 </li>
               ))}
             </ul>
+
+            {team.members.length < 2 && (
+              <div style={{
+                marginTop: '0.75rem',
+                padding: '0.6rem 0.85rem',
+                background: 'rgba(255, 165, 0, 0.1)',
+                border: '1px solid rgba(255, 165, 0, 0.3)',
+                borderRadius: '4px',
+                color: '#ffb74d',
+                fontSize: '0.8rem',
+                lineHeight: 1.4
+              }}>
+                ⚠️ Minimum alliance size is 2 tributes. Share your join code to recruit at least 1 more member.
+              </div>
+            )}
+
+            {team.members.length === 4 && (
+              <div style={{
+                marginTop: '0.75rem',
+                padding: '0.6rem 0.85rem',
+                background: 'rgba(76, 175, 80, 0.1)',
+                border: '1px solid rgba(76, 175, 80, 0.3)',
+                borderRadius: '4px',
+                color: '#81c784',
+                fontSize: '0.8rem',
+                lineHeight: 1.4
+              }}>
+                ✓ Alliance is at maximum capacity (4/4 tributes).
+              </div>
+            )}
           </div>
 
           {!team.isSubmitted && (
