@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateUploadUrl, deleteObject } from '@/lib/r2';
 import { createClient } from '@supabase/supabase-js';
+import { isSubmissionClosed } from '@/lib/event';
 
 export async function POST(req: NextRequest) {
   try {
+    if (isSubmissionClosed()) {
+      return NextResponse.json({ error: 'Submissions have closed for this event.' }, { status: 403 });
+    }
+
     const { fileName, contentType, oldFileName } = await req.json();
 
     if (!fileName || !contentType) {

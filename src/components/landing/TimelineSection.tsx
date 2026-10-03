@@ -32,6 +32,13 @@ export const TIMELINE_EVENTS = [
     event: 'The Arena (Event Day)',
     subtitle: 'The Cornucopia Opens — Live Hackathon & Gamemaker Evaluation',
   },
+  {
+    id: 5,
+    phase: 'Phase 05',
+    date: 'Oct 10',
+    event: "The Victor's Crowning (Final Day)",
+    subtitle: 'Capitol Grand Finale — Project Pitches, Gamemaker Judgment & Awarding the Victor',
+  },
 ];
 
 export default function TimelineSection() {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLenis } from 'lenis/react';
 import { motion } from 'framer-motion';
@@ -7,10 +8,20 @@ import HeroCanvas from '@/components/canvas/HeroCanvas';
 import CountdownTimer from '@/components/CountdownTimer';
 import TimelineSection from '@/components/landing/TimelineSection';
 import ProblemCardsSection from '@/components/landing/ProblemCardsSection';
-import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL } from '@/lib/event';
+import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL, isRegistrationClosed } from '@/lib/event';
 
 export default function Home() {
   const lenis = useLenis();
+  const [closed, setClosed] = useState(false);
+
+  useEffect(() => {
+    setClosed(isRegistrationClosed());
+    const interval = setInterval(() => {
+      setClosed(isRegistrationClosed());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const scrollTo = (id: string) => {
     if (lenis) {
       lenis.scrollTo(id);
@@ -141,9 +152,11 @@ export default function Home() {
                   alignItems: 'center',
                   fontSize: '0.85rem',
                   letterSpacing: '0.1em',
+                  opacity: closed ? 0.8 : 1,
+                  border: closed ? '1px solid rgba(212, 175, 55, 0.4)' : undefined,
                 }}
               >
-                REGISTER
+                {closed ? 'REGISTRATIONS CLOSED' : 'REGISTER'}
               </Link>
             </div>
             

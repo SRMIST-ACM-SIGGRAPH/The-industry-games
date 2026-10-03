@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { isRegistrationClosed } from '@/lib/event';
 import { Copy, Check } from 'lucide-react';
 
 export interface TeamView {
@@ -28,6 +29,15 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [regClosed, setRegClosed] = useState(false);
+
+  useEffect(() => {
+    setRegClosed(isRegistrationClosed());
+    const interval = setInterval(() => {
+      setRegClosed(isRegistrationClosed());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState('');
@@ -35,6 +45,10 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (isRegistrationClosed()) {
+      setError('Registrations have concluded. New alliances can no longer be formed.');
+      return;
+    }
     if (!inputValue.trim()) {
       setError('Team name is required.');
       return;
@@ -73,6 +87,10 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (isRegistrationClosed()) {
+      setError('Registrations have concluded. New alliances can no longer be joined.');
+      return;
+    }
     if (!inputValue.trim()) {
       setError('Team code is required.');
       return;
@@ -278,17 +296,38 @@ export default function AlliancePanel({ userId, team, onTeamUpdate, fetchFullTea
                 exit={{ opacity: 0 }}
               >
                 <p className="alliance__empty-text">You are not in an Alliance.</p>
-                <p className="alliance__empty-sub">
-                  Form an alliance of up to 4 tributes, or join one with a team code.
-                </p>
-                <div className="alliance__cta" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <button className="btn btn-primary" onClick={() => { setMode('create'); setInputValue(''); setError(''); }}>
-                    Create Alliance
-                  </button>
-                  <button className="btn" onClick={() => { setMode('join'); setInputValue(''); setError(''); }}>
-                    Join Alliance
-                  </button>
-                </div>
+                {regClosed ? (
+                  <div style={{
+                    background: 'rgba(255, 69, 0, 0.1)',
+                    border: '1px solid var(--accent-orange)',
+                    borderRadius: '6px',
+                    padding: '1.25rem',
+                    color: '#ff9e80',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                    marginTop: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    <strong style={{ display: 'block', fontSize: '1rem', color: 'var(--accent-orange)', marginBottom: '0.5rem' }}>
+                      Registrations Have Concluded
+                    </strong>
+                    The deadline to form or join an alliance has passed. New teams cannot be created.
+                  </div>
+                ) : (
+                  <>
+                    <p className="alliance__empty-sub">
+                      Form an alliance of up to 4 tributes, or join one with a team code.
+                    </p>
+                    <div className="alliance__cta" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <button className="btn btn-primary" onClick={() => { setMode('create'); setInputValue(''); setError(''); }}>
+                        Create Alliance
+                      </button>
+                      <button className="btn" onClick={() => { setMode('join'); setInputValue(''); setError(''); }}>
+                        Join Alliance
+                      </button>
+                    </div>
+                  </>
+                )}
               </motion.div>
             )}
 

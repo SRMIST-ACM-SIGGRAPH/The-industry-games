@@ -74,7 +74,7 @@ export default function CountdownTimer({
         aria-live="polite"
       >
         {label && <span className="countdown__label">{label}</span>}
-        <span className="countdown__ended">The Games Have Begun</span>
+        <span className="countdown__ended">Registrations Have Concluded</span>
       </div>
     );
   }

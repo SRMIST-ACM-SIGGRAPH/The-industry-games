@@ -30,11 +30,14 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const GITHUB_PATTERN = /^https:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+\/?.*$/i;
 const LINKEDIN_PATTERN = /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?.*$/i;
 
+import { isRegistrationClosed } from '@/lib/event';
+
 export default function Onboarding() {
   const router = useRouter();
 
   const [checking, setChecking] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [regClosed, setRegClosed] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [collegeEmail, setCollegeEmail] = useState('');
@@ -66,6 +69,13 @@ export default function Onboarding() {
       const profile = await getProfile(session.user.id);
       if (isProfileComplete(profile)) {
         router.replace('/dashboard');
+        return;
+      }
+      if (isRegistrationClosed()) {
+        if (active) {
+          setRegClosed(true);
+          setChecking(false);
+        }
         return;
       }
       if (!active) return;
@@ -195,6 +205,36 @@ export default function Onboarding() {
       <div className="onboarding-loading">
         <span className="spinner" aria-hidden />
         <p>Verifying your credentials…</p>
+      </div>
+    );
+  }
+
+  if (regClosed) {
+    return (
+      <div className="onboarding">
+        <motion.div
+          className="onboarding__card"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ textAlign: 'center', padding: '3rem 2rem' }}
+        >
+          <span className="onboarding__accent" />
+          <h1 className="onboarding__title" style={{ color: 'var(--accent-orange)' }}>
+            Registrations Have Concluded
+          </h1>
+          <p className="onboarding__subtitle" style={{ marginBottom: '2rem' }}>
+            The registration window for the 75th Annual Industry Games has closed. New tributes can no longer be enrolled into the arena.
+          </p>
+          <button
+            className="btn"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.replace('/');
+            }}
+          >
+            Return to Arena Home
+          </button>
+        </motion.div>
       </div>
     );
   }

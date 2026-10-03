@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { isRegistrationClosed } from '@/lib/event';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -13,8 +14,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [regClosed, setRegClosed] = useState(false);
 
   useEffect(() => {
+    setRegClosed(isRegistrationClosed());
     let mounted = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted && session?.user) {
@@ -46,15 +49,22 @@ export default function Login() {
       return;
     }
 
+    const closed = isRegistrationClosed();
+
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
+        shouldCreateUser: !closed,
         emailRedirectTo: `${window.location.origin}/dashboard`,
       }
     });
 
     if (signInError) {
-      setError(signInError.message);
+      if (closed) {
+        setError('Registrations have concluded. New tributes are not allowed to enter.');
+      } else {
+        setError(signInError.message);
+      }
     } else {
       setMessage('A secure transmission has been sent to your inbox. Check your email for the access code.');
       setStep('otp');
@@ -110,11 +120,27 @@ export default function Login() {
         }} />
         
         <h1 style={{ fontSize: '2rem', color: 'var(--accent-gold)', marginBottom: '0.5rem', textAlign: 'center' }}>
-          Tribute Registration
+          {regClosed ? 'Tribute Sign In' : 'Tribute Registration'}
         </h1>
-        <p style={{ textAlign: 'center', color: '#aaa', marginBottom: '2rem' }}>
+        <p style={{ textAlign: 'center', color: '#aaa', marginBottom: '1.5rem' }}>
           {step === 'email' ? 'Authenticate with your Capitol-issued credential.' : 'Enter the 6-digit access code sent to your email.'}
         </p>
+
+        {regClosed && (
+          <div style={{
+            background: 'rgba(255, 69, 0, 0.12)',
+            border: '1px solid var(--accent-orange)',
+            borderRadius: '4px',
+            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.85rem',
+            color: '#ffa07a',
+            textAlign: 'center',
+            lineHeight: 1.4
+          }}>
+            <strong>Registrations have concluded.</strong> Only previously registered tributes may enter the arena.
+          </div>
+        )}
 
         {step === 'email' ? (
           <form onSubmit={handleSendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -137,7 +163,7 @@ export default function Login() {
               disabled={loading}
               style={{ width: '100%', marginTop: '1rem', opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? 'Transmitting...' : 'Request Access Code'}
+              {loading ? 'Transmitting...' : regClosed ? 'Enter Arena' : 'Request Access Code'}
             </button>
           </form>
         ) : (

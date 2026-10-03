@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { isCurrentUserAdmin } from '@/lib/admin';
+import { isRegistrationClosed } from '@/lib/event';
 import { User } from '@supabase/supabase-js';
 
 export default function Navbar() {
@@ -62,7 +63,7 @@ export default function Navbar() {
           </Link>
         ) : (
           <Link href="/login" className="btn btn-primary navbar-btn">
-            Register
+            {isRegistrationClosed() ? 'Login' : 'Register'}
           </Link>
         )}
       </div>
