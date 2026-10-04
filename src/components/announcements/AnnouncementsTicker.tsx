@@ -15,8 +15,8 @@ export default function AnnouncementsTicker() {
 
   if (error || !latest) return null;
 
-  // Clean newlines/extra whitespace for ticker single-line presentation
-  const cleanContent = latest.content.replace(/\r?\n+/g, ' ').trim();
+  // Trim content while preserving markdown line breaks for headings like ### and lists
+  const cleanContent = latest.content.trim();
   const textLength = (latest.title + cleanContent).length;
 
   // Dynamic duration ensures readable scrolling speed regardless of message length

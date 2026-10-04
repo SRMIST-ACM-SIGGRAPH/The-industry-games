@@ -833,7 +833,27 @@ select.input-field { appearance: none; cursor: pointer; }
 
 .ticker-markdown p {
   display: inline;
-  margin: 0;
+  margin: 0 0.35rem 0 0;
+}
+
+.ticker-markdown h1,
+.ticker-markdown h2,
+.ticker-markdown h3,
+.ticker-markdown h4,
+.ticker-markdown h5,
+.ticker-markdown h6 {
+  display: inline;
+  margin: 0 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ticker-markdown h3::after {
+  content: ' ';
 }
 
 .ticker-markdown strong {
@@ -858,6 +878,24 @@ select.input-field { appearance: none; cursor: pointer; }
   font-size: 0.85em;
   color: #f6ad55;
   font-family: monospace;
+}
+
+.ticker-markdown ul,
+.ticker-markdown ol {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticker-markdown li {
+  display: inline;
+  margin: 0 0.35rem;
+}
+
+.ticker-markdown li::before {
+  content: ' • ';
+  color: var(--accent-gold);
 }
 
 .ticker-time {
