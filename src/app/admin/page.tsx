@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAdminGuard } from '@/lib/useAdminGuard';
 import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
 import AdminTabsNav from '@/components/admin/AdminTabsNav';
+import ArenaInsights from '@/components/admin/ArenaInsights';
 
 export default function AdminHome() {
   const status = useAdminGuard();
@@ -22,9 +23,12 @@ export default function AdminHome() {
       <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
         Command Center
       </h1>
-      <p style={{ color: '#aaa', fontSize: '1.1rem', marginBottom: '3rem' }}>
+      <p style={{ color: '#aaa', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
         Authenticated as a Gamemaker. Overseer tools are listed below.
       </p>
+
+      {/* Top-Level Arena Insights */}
+      <ArenaInsights />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         <div className="admin-panel">
