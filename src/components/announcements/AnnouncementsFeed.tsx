@@ -1,5 +1,6 @@
 import { Announcement } from '@/lib/types';
 import { formatTimestamp } from '@/lib/announcements';
+import ReactMarkdown from 'react-markdown';
 
 interface AnnouncementsFeedProps {
   announcements: Announcement[];
@@ -55,9 +56,12 @@ export default function AnnouncementsFeed({ announcements, error, loading, onEdi
               </div>
             )}
           </div>
-          <p style={{ color: '#aaa', margin: '0.5rem 0 0 0' }}>{announcement.content}</p>
+          <div className="announcement-content-markdown">
+            <ReactMarkdown>{announcement.content}</ReactMarkdown>
+          </div>
         </li>
       ))}
     </ul>
   );
 }
+

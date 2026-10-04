@@ -685,6 +685,105 @@ select.input-field { appearance: none; cursor: pointer; }
   100% { box-shadow: 0 0 0 0 rgba(190, 18, 60, 0); }
 }
 
+/* Announcement Markdown Rendering */
+.announcement-content-markdown {
+  margin-top: 0.75rem;
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.announcement-content-markdown p {
+  margin: 0.5rem 0;
+}
+
+.announcement-content-markdown p:first-child {
+  margin-top: 0;
+}
+
+.announcement-content-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.announcement-content-markdown strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.announcement-content-markdown em {
+  font-style: italic;
+  color: #e5e5e5;
+}
+
+.announcement-content-markdown a {
+  color: var(--accent-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s ease;
+}
+
+.announcement-content-markdown a:hover {
+  opacity: 0.8;
+}
+
+.announcement-content-markdown ul,
+.announcement-content-markdown ol {
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  padding-left: 0.5rem;
+}
+
+.announcement-content-markdown li {
+  margin: 0.25rem 0;
+}
+
+.announcement-content-markdown h1,
+.announcement-content-markdown h2,
+.announcement-content-markdown h3,
+.announcement-content-markdown h4 {
+  font-family: var(--font-display);
+  color: var(--accent-gold);
+  margin: 1rem 0 0.4rem 0;
+  letter-spacing: 0.05em;
+}
+
+.announcement-content-markdown h1 { font-size: 1.25rem; }
+.announcement-content-markdown h2 { font-size: 1.15rem; }
+.announcement-content-markdown h3 { font-size: 1.05rem; }
+
+.announcement-content-markdown code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #f6ad55;
+  font-family: monospace;
+}
+
+.announcement-content-markdown pre {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.announcement-content-markdown pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.announcement-content-markdown blockquote {
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: #bbb;
+  font-style: italic;
+}
+
+
 /* Landing Page Ticker */
 .ticker {
   position: relative;

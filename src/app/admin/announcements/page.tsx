@@ -7,6 +7,7 @@ import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
 import { fetchAnnouncements, subscribeToAnnouncements, deleteAnnouncement, updateAnnouncement } from '@/lib/announcements';
 import AnnouncementsFeed from '@/components/announcements/AnnouncementsFeed';
 import { Announcement, Urgency } from '@/lib/types';
+import ReactMarkdown from 'react-markdown';
 
 const URGENCY_OPTIONS: { value: Urgency; label: string }[] = [
   { value: 'general', label: 'General' },
@@ -20,9 +21,11 @@ export default function AdminAnnouncements() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [urgency, setUrgency] = useState<Urgency>('general');
+  const [showPreview, setShowPreview] = useState(false);
   const [broadcasting, setBroadcasting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
 
   const [history, setHistory] = useState<Announcement[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -157,17 +160,74 @@ export default function AdminAnnouncements() {
             required
           />
 
-          <label htmlFor="announcement-content" className="form-label">Message</label>
-          <textarea
-            id="announcement-content"
-            className="input-field"
-            rows={5}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write the message tributes will receive..."
-            maxLength={2000}
-            required
-          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+            <label htmlFor="announcement-content" className="form-label" style={{ margin: 0 }}>Message</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="btn"
+                style={{
+                  fontSize: '0.75rem',
+                  padding: '0.2rem 0.6rem',
+                  borderColor: !showPreview ? 'var(--accent-gold)' : 'var(--border-color)',
+                  color: !showPreview ? 'var(--accent-gold)' : '#888'
+                }}
+              >
+                Write
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="btn"
+                style={{
+                  fontSize: '0.75rem',
+                  padding: '0.2rem 0.6rem',
+                  borderColor: showPreview ? 'var(--accent-gold)' : 'var(--border-color)',
+                  color: showPreview ? 'var(--accent-gold)' : '#888'
+                }}
+              >
+                Markdown Preview
+              </button>
+            </div>
+          </div>
+
+          {!showPreview ? (
+            <>
+              <textarea
+                id="announcement-content"
+                className="input-field"
+                rows={5}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write the message tributes will receive... (Markdown supported: **bold**, *italic*, [link](url), - lists)"
+                maxLength={2000}
+                required
+              />
+              <span style={{ fontSize: '0.75rem', color: '#666', marginTop: '-0.25rem', marginBottom: '0.5rem', display: 'block' }}>
+                Tip: Use Markdown for formatting (**bold**, *italic*, [links](https://...), `code`, and bullet lists).
+              </span>
+            </>
+          ) : (
+            <div
+              style={{
+                minHeight: '120px',
+                padding: '1rem',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '4px',
+                marginBottom: '1rem',
+              }}
+            >
+              {content.trim() ? (
+                <div className="announcement-content-markdown">
+                  <ReactMarkdown>{content}</ReactMarkdown>
+                </div>
+              ) : (
+                <span style={{ color: '#666', fontStyle: 'italic', fontSize: '0.85rem' }}>Nothing to preview yet.</span>
+              )}
+            </div>
+          )}
 
           <label htmlFor="announcement-urgency" className="form-label">Urgency Level</label>
           <div className="urgency-picker" role="radiogroup" aria-label="Urgency level">
