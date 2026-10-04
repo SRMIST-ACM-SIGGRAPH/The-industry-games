@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useAdminGuard } from '@/lib/useAdminGuard';
 import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
+import AdminTabsNav from '@/components/admin/AdminTabsNav';
 
 export default function AdminHome() {
   const status = useAdminGuard();
@@ -17,6 +18,7 @@ export default function AdminHome() {
 
   return (
     <div className="container" style={{ paddingTop: '10rem', paddingBottom: '4rem', minHeight: '100vh' }}>
+      <AdminTabsNav />
       <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
         Command Center
       </h1>

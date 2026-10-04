@@ -15,8 +15,11 @@ const URGENCY_OPTIONS: { value: Urgency; label: string }[] = [
   { value: 'critical', label: 'Critical' },
 ];
 
+import AdminTabsNav from '@/components/admin/AdminTabsNav';
+
 export default function AdminAnnouncements() {
   const status = useAdminGuard();
+
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -128,6 +131,7 @@ export default function AdminAnnouncements() {
 
   return (
     <div className="container" style={{ paddingTop: '10rem', paddingBottom: '4rem', minHeight: '100vh' }}>
+      <AdminTabsNav />
       <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
         Announcement Broadcasts
       </h1>

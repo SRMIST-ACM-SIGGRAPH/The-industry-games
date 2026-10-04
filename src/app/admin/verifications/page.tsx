@@ -6,6 +6,7 @@ import { useAdminGuard } from '@/lib/useAdminGuard';
 import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
 import { fetchTeamsForVerification, updateTeamPaymentStatus, getPaymentProofUrl } from '@/lib/admin-verifications';
 import { Team } from '@/lib/types';
+import AdminTabsNav from '@/components/admin/AdminTabsNav';
 
 export default function VerificationsPage() {
   const status = useAdminGuard();
@@ -65,6 +66,7 @@ export default function VerificationsPage() {
 
   return (
     <div className="container" style={{ paddingTop: '10rem', paddingBottom: '4rem', minHeight: '100vh' }}>
+      <AdminTabsNav />
       <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
         Verifications
       </h1>

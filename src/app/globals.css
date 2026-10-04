@@ -827,6 +827,39 @@ select.input-field { appearance: none; cursor: pointer; }
   color: var(--accent-gold);
 }
 
+.ticker-markdown {
+  display: inline;
+}
+
+.ticker-markdown p {
+  display: inline;
+  margin: 0;
+}
+
+.ticker-markdown strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.ticker-markdown em {
+  font-style: italic;
+  color: #ddd;
+}
+
+.ticker-markdown a {
+  color: var(--accent-gold);
+  text-decoration: underline;
+}
+
+.ticker-markdown code {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: #f6ad55;
+  font-family: monospace;
+}
+
 .ticker-time {
   color: #777;
   font-size: 0.85rem;
@@ -905,3 +938,52 @@ select.input-field { appearance: none; cursor: pointer; }
 .footer-website-link:hover {
   color: var(--accent-gold);
 }
+
+/* Admin Tab Navigation */
+.admin-tabs-nav {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.admin-tabs-list {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-tab-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #888;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.admin-tab-item:hover {
+  color: #ddd;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-tab-item-active {
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+}
+
+.admin-tab-icon {
+  flex-shrink: 0;
+}
+
