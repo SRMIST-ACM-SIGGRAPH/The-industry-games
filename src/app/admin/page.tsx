@@ -19,7 +19,6 @@ export default function AdminHome() {
 
   return (
     <div className="container" style={{ paddingTop: '10rem', paddingBottom: '4rem', minHeight: '100vh' }}>
-      <AdminTabsNav />
       <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
         Command Center
       </h1>
@@ -29,6 +28,8 @@ export default function AdminHome() {
 
       {/* Top-Level Arena Insights */}
       <ArenaInsights />
+
+      <AdminTabsNav />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         <div className="admin-panel">
