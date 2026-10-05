@@ -201,3 +201,32 @@ BEGIN
   RETURN TRUE;
 END;
 $$;
+
+-- ==========================================
+-- 7. LOGISTICS & OPERATIONS
+-- ==========================================
+
+-- Drop the old attendance table if it exists
+DROP TABLE IF EXISTS public.ig_attendance CASCADE;
+
+-- New Attendance Table (includes nested JSON meals)
+CREATE TABLE public.ig_attendance (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  team_id UUID NOT NULL REFERENCES public.ig_teams(id) ON DELETE CASCADE,
+  profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  attendance_date DATE NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('Present', 'Absent')),
+  meals JSONB NOT NULL DEFAULT '{}'::jsonb,
+  marked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_by UUID REFERENCES public.profiles(id),
+  CONSTRAINT ig_attendance_pkey PRIMARY KEY (id),
+  CONSTRAINT ig_attendance_unique UNIQUE (team_id, profile_id, attendance_date)
+);
+
+-- Enable RLS
+ALTER TABLE public.ig_attendance ENABLE ROW LEVEL SECURITY;
+
+-- Logistics RLS Policies (Admins only for modification)
+CREATE POLICY "Admins can view attendance" ON public.ig_attendance FOR SELECT TO authenticated USING (public.is_admin());
+CREATE POLICY "Admins can manage attendance" ON public.ig_attendance FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
