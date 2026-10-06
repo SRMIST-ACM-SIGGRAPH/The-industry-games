@@ -52,6 +52,9 @@ export default function Navbar() {
         <Link href="/#problems" className="navbar-link">
           Problem Statements
         </Link>
+        <Link href="/#sponsors" className="navbar-link">
+          Sponsors
+        </Link>
         {isAdmin && (
           <Link href="/admin" className="navbar-link admin-link">
             Command Center

@@ -1189,4 +1189,291 @@ select.input-field { appearance: none; cursor: pointer; }
   line-height: 1.35;
 }
 
+/* ========================================================
+   Arena Sponsors & Benefactors Horizontal Sliding Carousel
+   ======================================================== */
+.sponsors-section {
+  width: 100%;
+  padding: 7rem 0 5rem 0;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+}
+
+.sponsors-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sponsors-pill-tag {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 999px;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+.sponsors-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--accent-gold);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+  margin: 0;
+}
+
+.sponsors-subtitle {
+  color: #aaa;
+  font-size: 1.05rem;
+  max-width: 650px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Carousel Outer Wrapper */
+.sponsors-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 -0.5rem;
+}
+
+.sponsors-viewport {
+  overflow: hidden;
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.sponsors-track {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+}
+
+.sponsor-slide-col {
+  padding: 0 0.75rem;
+  box-sizing: border-box;
+}
+
+/* Sponsor Card */
+.sponsor-card {
+  height: 100%;
+  min-height: 320px;
+  background: rgba(14, 14, 14, 0.75);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sponsor-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.15);
+}
+
+.sponsor-card-title {
+  border-top: 3px solid var(--accent-gold);
+}
+
+.sponsor-card-food {
+  border-top: 3px solid var(--accent-orange);
+}
+
+.sponsor-card-internship {
+  border-top: 3px solid #38bdf8;
+}
+
+.sponsor-card-partner {
+  border-top: 3px solid #94a3b8;
+}
+
+/* Badge */
+.sponsor-badge-row {
+  margin-bottom: 1.25rem;
+}
+
+.sponsor-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.sponsor-badge-title {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(212, 175, 55, 0.15));
+  border: 1px solid var(--accent-gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.sponsor-badge-food {
+  color: #fed7aa;
+  background: rgba(234, 88, 12, 0.2);
+  border: 1px solid rgba(234, 88, 12, 0.45);
+}
+
+.sponsor-badge-internship {
+  color: #bae6fd;
+  background: rgba(14, 165, 233, 0.18);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+.sponsor-badge-partner {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+/* Logo Box */
+.sponsor-logo-container {
+  width: 100%;
+  height: 110px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem;
+  margin-bottom: 1.25rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.sponsor-card:hover .sponsor-logo-container {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.sponsor-logo-img {
+  max-width: 90%;
+  max-height: 80px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.sponsor-card:hover .sponsor-logo-img {
+  transform: scale(1.06);
+}
+
+/* Info */
+.sponsor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.sponsor-name {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.sponsor-sub {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.sponsor-desc {
+  font-size: 0.82rem;
+  color: #888;
+  line-height: 1.45;
+  margin: 0.4rem 0 0 0;
+}
+
+/* Controls */
+.sponsors-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid var(--border-color);
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.sponsors-nav-prev {
+  left: -18px;
+}
+
+.sponsors-nav-next {
+  right: -18px;
+}
+
+.sponsors-nav-btn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--accent-gold);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Dots */
+.sponsors-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+}
+
+.sponsor-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.sponsor-dot-active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+@media (max-width: 768px) {
+  .sponsors-nav-prev { left: 4px; }
+  .sponsors-nav-next { right: 4px; }
+}
+
+
 
