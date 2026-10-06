@@ -8,6 +8,7 @@ import HeroCanvas from '@/components/canvas/HeroCanvas';
 import CountdownTimer from '@/components/CountdownTimer';
 import TimelineSection from '@/components/landing/TimelineSection';
 import ProblemCardsSection from '@/components/landing/ProblemCardsSection';
+import SponsorsSection from '@/components/landing/SponsorsSection';
 import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL, isRegistrationClosed } from '@/lib/event';
 
 export default function Home() {
@@ -234,6 +235,9 @@ export default function Home() {
 
       {/* Problem Statements Section */}
       <ProblemCardsSection />
+
+      {/* Arena Benefactors & Sponsors Carousel */}
+      <SponsorsSection />
     </main>
   );
 }
