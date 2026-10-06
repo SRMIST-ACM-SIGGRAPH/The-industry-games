@@ -220,25 +220,56 @@ function csvCell(value: string | null | undefined): string {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-export function buildShortlistCsv(teams: EvalTeam[], adminNames: Record<string, string>): string {
-  const header = ['Team Name', 'District', 'Leader Name', 'Leader Email', 'Members', 'Shortlisted By'];
-  const lines = teams
-    .filter((t) => statusOf(t) === 'shortlisted')
-    .map((t) => {
-      const leader = leaderOf(t);
-      return [
-        t.name,
-        t.problem_statement ?? '',
-        leader?.full_name ?? '',
-        leader?.college_email ?? '',
-        t.members.map(formatTribute).join('; '),
-        t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Unknown admin' : '',
-      ]
-        .map(csvCell)
-        .join(',');
-    });
+
+
+export function buildShortlistCsv(
+  teams: EvalTeam[],
+  adminNames: Record<string, string>
+): string {
+  const header = [
+    'Team Name',
+    'District',
+    'Team Leader Name',
+    'Team Leader Registration Number',
+    'Team Leader Email',
+    'Member Name',
+    'Member Registration Number',
+    'Member Email',
+    'Evaluated By',
+  ];
+
+  const lines: string[] = [];
+
+  for (const t of teams.filter((team) => statusOf(team) === 'shortlisted')) {
+    const leader = leaderOf(t);
+    const members = t.members.length > 0 ? t.members : [undefined];
+
+    const evaluatedBy = t.shortlisted_by
+      ? adminNames[t.shortlisted_by] ?? 'Unknown admin'
+      : '';
+
+    for (const m of members) {
+      lines.push(
+        [
+          t.name,
+          t.problem_statement ?? '',
+          leader?.full_name ?? '',
+          leader?.registration_number ?? '',
+          leader?.college_email ?? '',
+          m?.full_name ?? '',
+          m?.registration_number ?? '',
+          m?.college_email ?? '',
+          evaluatedBy,
+        ]
+          .map(csvCell)
+          .join(',')
+      );
+    }
+  }
+
   return [header.map(csvCell).join(','), ...lines].join('\r\n');
 }
+
 
 export function downloadCsv(filename: string, csv: string) {
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
