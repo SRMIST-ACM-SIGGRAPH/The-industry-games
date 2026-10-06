@@ -14,6 +14,7 @@ export interface TeamView {
   isSubmitted: boolean;
   problemStatement: string | null;
   members: { id: string; name: string }[];
+  evalStatus?: string | null;
 }
 
 interface AlliancePanelProps {

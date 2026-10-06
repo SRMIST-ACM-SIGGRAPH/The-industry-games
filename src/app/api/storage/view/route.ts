@@ -5,11 +5,11 @@ import { createClient } from '@supabase/supabase-js';
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const fileName = url.searchParams.get('fileName');
+    const fileName = url.searchParams.get('key') ?? url.searchParams.get('fileName');
     const token = url.searchParams.get('token');
     
     if (!fileName) {
-      return NextResponse.json({ error: 'Missing fileName' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing key' }, { status: 400 });
     }
     
     if (!token) {

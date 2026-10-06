@@ -1,203 +1,258 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Download, Megaphone, Eye, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAdminGuard } from '@/lib/useAdminGuard';
 import { ForbiddenPanel, LoadingPanel } from '@/components/admin/AdminPanels';
-import { fetchTeamsForVerification, updateTeamPaymentStatus, getPaymentProofUrl } from '@/lib/admin-verifications';
-import { Team } from '@/lib/types';
 import AdminTabsNav from '@/components/admin/AdminTabsNav';
+import ProfileInspectorModal from '@/components/admin/ProfileInspectorModal';
+import PresentationViewerModal from '@/components/admin/PresentationViewerModal';
+import TeamDetailsModal from '@/components/admin/TeamDetailsModal';
+import { EVENT_DEADLINE } from '@/lib/event';
+import {
+  EvalStatus,
+  EvalTeam,
+  TributeProfile,
+  announceResults,
+  buildShortlistCsv,
+  downloadCsv,
+  fetchEvaluationData,
+  fetchResultsAnnounced,
+  rejectedBy,
+  formatTribute,
+  statusOf,
+  transitionTeam,
+} from '@/lib/evaluation';
 
-export default function VerificationsPage() {
+const FILTERS: ('all' | EvalStatus)[] = ['all', 'pending', 'staged', 'shortlisted', 'rejected'];
+
+const fmt = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) : '';
+
+export default function EvaluationPage() {
   const status = useAdminGuard();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<EvalTeam[]>([]);
+  const [adminNames, setAdminNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [filter, setFilter] = useState<'all' | EvalStatus>('all');
   const [authToken, setAuthToken] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [evaluating, setEvaluating] = useState<EvalTeam | null>(null);
+  const [detailsId, setDetailsId] = useState<string | null>(null);
+  const [inspecting, setInspecting] = useState<TributeProfile | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [announcing, setAnnouncing] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [announced, setAnnounced] = useState(false);
+
+  // Announcement gate: opens once the submission deadline (Oct 7, 23:59:59 IST) passes.
+  useEffect(() => {
+    const check = () => setUnlocked(Date.now() >= new Date(EVENT_DEADLINE).getTime());
+    check();
+    const id = setInterval(check, 15000);
+    return () => clearInterval(id);
+  }, []);
+
+  const load = useCallback(async () => {
+    try {
+      const [{ teams, adminNames }, isAnnounced] = await Promise.all([fetchEvaluationData(), fetchResultsAnnounced()]);
+      setAnnounced(isAnnounced);
+      setTeams(teams);
+      setAdminNames(adminNames);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to load submissions');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (status === 'authorized') {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.access_token) setAuthToken(session.access_token);
-      });
+    if (status !== 'authorized') return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setAuthToken(session.access_token);
+        setAdminId(session.user.id);
+      }
+    });
+    load();
+  }, [status, load]);
 
-      fetchTeamsForVerification()
-        .then((data) => {
-          setTeams(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
-        });
-    }
-  }, [status]);
-
-  const handleStatusUpdate = async (teamId: string, newStatus: 'verified' | 'rejected' | 'pending') => {
+  const handleTransition = async (to: EvalStatus) => {
+    if (!evaluating || !adminId) return;
+    setBusy(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not logged in");
-
-      await updateTeamPaymentStatus(teamId, newStatus, user.id);
-      
-      // Update local state with the verifier's email (assuming current user's email)
-      setTeams((prev) => prev.map((t) => (t.id === teamId ? { 
-        ...t, 
-        payment_status: newStatus,
-        verifier: { college_email: user.email || 'Unknown' }
-      } : t)));
-
-      setSelectedTeam(null);
+      const patch = await transitionTeam(evaluating, to, adminId);
+      setTeams((prev) => prev.map((t) => (t.id === evaluating.id ? { ...t, ...patch } : t)));
+      setEvaluating(null);
     } catch (err: any) {
       alert(`Failed to update status: ${err.message}`);
+    } finally {
+      setBusy(false);
     }
   };
 
-  if (status === 'loading' || status === 'unauthenticated' || loading) {
-    return <LoadingPanel />;
-  }
+  const shortlisted = useMemo(() => teams.filter((t) => statusOf(t) === 'shortlisted'), [teams]);
+  const detailsTeam = teams.find((t) => t.id === detailsId) ?? null;
+  const visible = teams.filter((t) => filter === 'all' || statusOf(t) === filter);
 
-  if (status === 'forbidden') {
-    return <ForbiddenPanel />;
-  }
+  const handleAnnounce = async () => {
+    const pending = teams.filter((t) => statusOf(t) === 'pending').length;
+    const msg =
+      `Announce results to all tributes?\n\n${shortlisted.length} shortlisted. ` +
+      (pending > 0 ? `${pending} team(s) are still unevaluated and will see no result yet.\n\n` : '\n') +
+      'This posts a broadcast to all tributes and cannot be undone from here.';
+    if (!window.confirm(msg)) return;
+    setAnnouncing(true);
+    try {
+      await announceResults();
+      await load();
+    } catch (err: any) {
+      alert(`Failed to announce results: ${err.message}`);
+    } finally {
+      setAnnouncing(false);
+    }
+  };
+
+  if (status === 'loading' || status === 'unauthenticated' || loading) return <LoadingPanel />;
+  if (status === 'forbidden') return <ForbiddenPanel />;
+
+  const who = (id: string | null) => (id ? adminNames[id] ?? 'Unknown admin' : null);
 
   return (
     <div className="container" style={{ paddingTop: '10rem', paddingBottom: '4rem', minHeight: '100vh' }}>
       <AdminTabsNav />
-      <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-        Verifications
-      </h1>
-      <p style={{ color: '#aaa', fontSize: '1.1rem', marginBottom: '3rem' }}>
-        Review payment proofs and verify alliances.
+      <h1 style={{ color: 'var(--accent-gold)', fontSize: '2.5rem', marginBottom: '0.5rem' }}>Evaluation & Shortlisting</h1>
+      <p style={{ color: '#aaa', fontSize: '1.1rem', marginBottom: '2rem' }}>
+        Review submitted decks, stage teams, and shortlist for the final showcase.
       </p>
 
-      {error && <p style={{ color: 'var(--accent-red)' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#e74c3c' }}>Error: {error}</p>}
+
+      {/* Result finalizer */}
+      <section className="admin-panel finalizer">
+        <div>
+          <h2 className="finalizer-title">Result Finalizer</h2>
+          <p className="finalizer-note">
+            {announced
+              ? 'Results have been announced to tribute dashboards.'
+              : unlocked
+              ? `${shortlisted.length} team(s) shortlisted. Ready to announce.`
+              : 'Announcements locked until submission window concludes.'}
+          </p>
+        </div>
+        <div className="finalizer-actions">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => downloadCsv('shortlist.csv', buildShortlistCsv(teams, adminNames))}
+            disabled={shortlisted.length === 0}
+          >
+            <Download size={14} /> Download Shortlist CSV
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleAnnounce}
+            disabled={!unlocked || announced || announcing}
+          >
+            {unlocked ? <Megaphone size={14} /> : <Lock size={14} />} {announcing ? 'Announcing…' : announced ? 'Announced' : 'Announce Results'}
+          </button>
+        </div>
+      </section>
+
+      <div className="eval-filters" role="tablist" aria-label="Filter by status">
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            type="button"
+            role="tab"
+            aria-selected={filter === f}
+            className={`eval-filter ${filter === f ? 'eval-filter-active' : ''}`}
+            onClick={() => setFilter(f)}
+          >
+            {f} ({f === 'all' ? teams.length : teams.filter((t) => statusOf(t) === f).length})
+          </button>
+        ))}
+      </div>
 
       <div className="admin-panel" style={{ padding: '1rem', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table className="eval-table">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--accent-gold)', fontFamily: 'var(--font-display)' }}>
-              <th style={{ padding: '1rem' }}>Team Name</th>
-              <th style={{ padding: '1rem' }}>Code</th>
-              <th style={{ padding: '1rem' }}>Presentation</th>
-              <th style={{ padding: '1rem' }}>Status</th>
-              <th style={{ padding: '1rem' }}>Verified By</th>
+            <tr>
+              <th>Team</th>
+              <th>Tributes</th>
+              <th>Status</th>
+              <th>Audit</th>
+              <th>Deck</th>
             </tr>
           </thead>
           <tbody>
-            {teams.map((team) => (
-              <tr key={team.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <td style={{ padding: '1rem' }}>{team.name}</td>
-                <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{team.team_code}</td>
-                <td style={{ padding: '1rem' }}>
-                  {team.submission_url ? (
-                    <button
-                      onClick={() => {
-                        setSelectedTeam(team);
-                        setImageLoaded(false);
-                        setImageError(false);
-                      }}
-                      className="btn btn-primary"
-                      style={{ padding: '0.2rem 0.6rem', fontSize: '0.8rem' }}
-                    >
-                      Review Presentation
+            {visible.map((team) => {
+              const s = statusOf(team);
+              return (
+                <tr key={team.id}>
+                  <td>
+                    <button type="button" className="eval-team-link" onClick={() => setDetailsId(team.id)} title="View team details">
+                      {team.name}
                     </button>
-                  ) : (
-                    <span style={{ color: '#666' }}>No proof</span>
-                  )}
-                </td>
-                <td style={{ padding: '1rem' }}>
-                  <span style={{
-                    padding: '0.2rem 0.6rem',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    textTransform: 'uppercase',
-                    backgroundColor: team.payment_status === 'verified' ? 'rgba(46, 204, 113, 0.2)' : team.payment_status === 'rejected' ? 'rgba(231, 76, 60, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                    color: team.payment_status === 'verified' ? '#2ecc71' : team.payment_status === 'rejected' ? '#e74c3c' : '#ccc',
-                  }}>
-                    {team.payment_status}
-                  </span>
-                </td>
-                <td style={{ padding: '1rem', color: '#888', fontSize: '0.9rem' }}>
-                  {team.verifier?.college_email || '—'}
-                </td>
-              </tr>
-            ))}
-            {teams.length === 0 && (
-              <tr>
-                <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-                  No alliances have registered yet.
-                </td>
-              </tr>
+                    <div className="eval-sub">{team.problem_statement ?? 'No district chosen'}</div>
+                  </td>
+                  <td>
+                    {team.members.map((m) => (
+                      <div key={m.id} className="eval-member">
+                        <span>{formatTribute(m)}</span>
+                        <button type="button" className="eval-link-btn" onClick={() => setInspecting(m)}>View Profile</button>
+                      </div>
+                    ))}
+                  </td>
+                  <td><span className={`eval-badge eval-badge-${s}`}>{s}</span></td>
+                  <td className="eval-sub">
+                    {s === 'rejected' && <div>Rejected by {who(rejectedBy(team)) ?? 'Unknown admin'}</div>}
+                    {s !== 'rejected' && team.staged_by && <div>Staged by {who(team.staged_by)} · {fmt(team.staged_at)}</div>}
+                    {s === 'shortlisted' && team.shortlisted_by && <div>Shortlisted by {who(team.shortlisted_by)} · {fmt(team.shortlisted_at)}</div>}
+                    {s === 'pending' && '—'}
+                  </td>
+                  <td>
+                    {team.submission_url ? (
+                      <button type="button" className="btn btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setEvaluating(team)}>
+                        <Eye size={14} /> Evaluate
+                      </button>
+                    ) : (
+                      <span className="eval-sub">No deck</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+            {visible.length === 0 && (
+              <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No submissions here yet.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {selectedTeam && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex',
-          flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '2rem'
-        }}>
-          <div style={{ width: '100%', maxWidth: '800px', backgroundColor: 'var(--panel-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
-            
-            {/* Header */}
-            <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, color: 'var(--accent-gold)' }}>Review Presentation: {selectedTeam.name}</h3>
-              <button onClick={() => setSelectedTeam(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
-            </div>
-
-              {/* iframe Container */}
-            <div style={{ flex: 1, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', padding: '1rem', background: '#e5e5e5' }}>
-              {!imageLoaded && !imageError && (
-                <div style={{ position: 'absolute', color: '#888' }}>Loading document...</div>
-              )}
-              {imageError && (
-                <div style={{ position: 'absolute', color: 'var(--accent-red)' }}>Error loading file.</div>
-              )}
-              <iframe 
-                src={getPaymentProofUrl(selectedTeam.submission_url, authToken) || ''} 
-                title="Presentation Preview"
-                onLoad={() => setImageLoaded(true)}
-                onError={() => { setImageError(true); setImageLoaded(true); }}
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  border: 'none',
-                  borderRadius: '4px',
-                  opacity: imageLoaded && !imageError ? 1 : 0,
-                  transition: 'opacity 0.3s ease'
-                }}
-              />
-            </div>
-
-            {/* Actions Footer */}
-            <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: '#111' }}>
-              <button
-                disabled={!imageLoaded}
-                onClick={() => handleStatusUpdate(selectedTeam.id, 'rejected')}
-                className="btn"
-                style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)', opacity: imageLoaded ? 1 : 0.5, cursor: imageLoaded ? 'pointer' : 'not-allowed' }}
-              >
-                Reject Payment
-              </button>
-              <button
-                disabled={!imageLoaded}
-                onClick={() => handleStatusUpdate(selectedTeam.id, 'verified')}
-                className="btn btn-primary"
-                style={{ opacity: imageLoaded ? 1 : 0.5, cursor: imageLoaded ? 'pointer' : 'not-allowed' }}
-              >
-                Verify Payment
-              </button>
-            </div>
-          </div>
-        </div>
+      {evaluating && (
+        <PresentationViewerModal
+          key={evaluating.id}
+          team={evaluating}
+          authToken={authToken}
+          busy={busy}
+          onTransition={handleTransition}
+          onClose={() => setEvaluating(null)}
+        />
       )}
+      {detailsTeam && (
+        <TeamDetailsModal
+          team={detailsTeam}
+          inspectorOpen={inspecting !== null}
+          onViewProfile={setInspecting}
+          onClose={() => setDetailsId(null)}
+        />
+      )}
+      {inspecting && <ProfileInspectorModal profile={inspecting} onClose={() => setInspecting(null)} />}
     </div>
   );
 }
