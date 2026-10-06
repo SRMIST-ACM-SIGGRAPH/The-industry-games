@@ -12,6 +12,8 @@ import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
 import ProblemStatements from '@/components/dashboard/ProblemStatements';
+import { deriveStatus } from '@/lib/evaluation';
+import ResultsPanel from '@/components/dashboard/ResultsPanel';
 
 const GithubIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,6 +58,7 @@ export default function Dashboard() {
         submissionUrl: teamData.submission_url,
         isSubmitted: teamData.is_submitted,
         problemStatement: teamData.problem_statement,
+        evalStatus: deriveStatus(teamData),
         members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
       });
     } else {
@@ -117,7 +120,8 @@ export default function Dashboard() {
             submissionUrl: teamData.submission_url,
             isSubmitted: teamData.is_submitted,
             problemStatement: teamData.problem_statement,
-            members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
+            evalStatus: deriveStatus(teamData),
+                members: roster?.map((r: any) => ({ id: r.profile_id, name: r.profiles?.full_name })) || []
           };
         }
       }
@@ -267,6 +271,12 @@ export default function Dashboard() {
         </motion.section>
 
       </div>
+
+      {team?.isSubmitted && (
+        <div style={{ marginTop: '2rem' }}>
+          <ResultsPanel evalStatus={team.evalStatus} />
+        </div>
+      )}
 
       {team && user && (
         <SubmissionPanel team={team} onTeamUpdate={setTeam} fetchFullTeam={fetchFullTeam} />
