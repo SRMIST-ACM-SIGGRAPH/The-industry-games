@@ -222,6 +222,7 @@ function csvCell(value: string | null | undefined): string {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
+// One row per team member, so a team with 4 members produces 4 rows.
 export function buildShortlistCsv(
   teams: EvalTeam[],
   adminNames: Record<string, string>
@@ -275,37 +276,6 @@ export function buildShortlistCsv(
 
   return [header.map(csvCell).join(','), ...lines].join('\r\n');
 }
-
-  // Only create as many Member N columns as the biggest shortlisted team needs.
-  const memberSlots = Math.max(1, ...shortlisted.map((t) => othersOf(t).length));
-
-  const header = ['Team Name', 'District', 'Team Leader Name', 'Team Leader Registration Number', 'Team Leader Email'];
-  for (let i = 1; i <= memberSlots; i++) {
-    header.push(`Member ${i} Name`, `Member ${i} Registration Number`, `Member ${i} Email`);
-  }
-  header.push('Evaluated By');
-
-  const lines = shortlisted.map((t) => {
-    const leader = leaderOf(t);
-    const others = othersOf(t);
-    const row = [t.name, t.problem_statement ?? '', leader?.full_name ?? '', leader?.registration_number ?? '', leader?.college_email ?? ''];
-    for (let i = 0; i < memberSlots; i++) {
-      const m = others[i];
-      row.push(m?.full_name ?? '', m?.registration_number ?? '', m?.college_email ?? '');
-    }
-    row.push(
-      !t.is_submitted
-        ? 'Not submitted'
-        : statusOf(t) === 'shortlisted'
-        ? t.shortlisted_by
-          ? adminNames[t.shortlisted_by] ?? 'Unknown admin'
-          : ''
-        : 'Pending'
-    );
-
-  return [header.map(csvCell).join(','), ...lines].join('\r\n');
-}
-
 
 export function downloadCsv(filename: string, csv: string) {
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
