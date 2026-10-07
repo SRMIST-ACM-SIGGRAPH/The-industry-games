@@ -222,8 +222,6 @@ function csvCell(value: string | null | undefined): string {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-
-
 export function buildShortlistCsv(
   teams: EvalTeam[],
   adminNames: Record<string, string>
