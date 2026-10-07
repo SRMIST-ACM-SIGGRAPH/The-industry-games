@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import AnnouncementsTicker from '@/components/announcements/AnnouncementsTicker';
 import { Analytics } from '@vercel/analytics/next';
+import ScrollToTop from '@/components/layout/ScrollToTop';
 
 export const metadata: Metadata = {
   title: 'The Industry Games | Hackathon',
@@ -26,6 +27,7 @@ export default function RootLayout({
           </header>
           {children}
           <Footer />
+          <ScrollToTop />
           <Analytics />
         </LenisProvider>
       </body>

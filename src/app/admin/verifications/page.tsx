@@ -105,8 +105,8 @@ export default function EvaluationPage() {
     if (search.trim()) {
       const q = search.toLowerCase();
       return (
-        t.name.toLowerCase().includes(q) ||
-        t.team_code.toLowerCase().includes(q) ||
+        (t.name ?? '').toLowerCase().includes(q) ||
+        (t.team_code ?? '').toLowerCase().includes(q) ||
         (t.problem_statement ?? '').toLowerCase().includes(q) ||
         t.members.some(m => 
           (m.full_name ?? '').toLowerCase().includes(q) || 
