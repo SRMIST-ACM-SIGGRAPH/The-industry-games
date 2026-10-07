@@ -249,16 +249,28 @@ export function buildShortlistCsv(
   const memberSlots = Math.max(1, ...included.map((t) => othersOf(t).length));
 
   const header = ['Team Name', 'District', 'Team Leader Name', 'Team Leader Registration Number', 'Team Leader Email'];
-  for (let i = 1; i <= memberSlots; i++) {
-    header.push(`Member ${i} Name`, `Member ${i} Registration Number`, `Member ${i} Email`);
+  for (let i = 0; i < memberSlots; i++) {
+    const memberNum = i + 2;
+    header.push(`Member ${memberNum} Name`, `Member ${memberNum} Registration Number`, `Member ${memberNum} Email`);
   }
-  header.push('Evaluated By');
+  header.push('Status / Evaluated By');
 
   const evaluatedBy = (t: EvalTeam): string => {
     if (!t.is_submitted) return 'Not submitted';
     const s = statusOf(t);
-    if (s === 'shortlisted') return t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Unknown admin' : '';
-    if (s === 'rejected') return 'Rejected';
+    if (s === 'shortlisted') {
+      const admin = t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Admin' : '';
+      return admin ? `Shortlisted (${admin})` : 'Shortlisted';
+    }
+    if (s === 'staged') {
+      const admin = t.staged_by ? adminNames[t.staged_by] ?? 'Admin' : '';
+      return admin ? `Staged (${admin})` : 'Staged';
+    }
+    if (s === 'rejected') {
+      const admin = rejectedBy(t);
+      const name = admin ? adminNames[admin] ?? 'Admin' : '';
+      return name ? `Rejected (${name})` : 'Rejected';
+    }
     return 'Pending';
   };
 
