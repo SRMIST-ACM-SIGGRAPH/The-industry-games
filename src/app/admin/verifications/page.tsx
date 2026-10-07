@@ -150,10 +150,10 @@ export default function EvaluationPage() {
           <button
             type="button"
             className="btn"
-            onClick={() => downloadCsv('shortlist.csv', buildShortlistCsv(teams, adminNames))}
-            disabled={shortlisted.length === 0}
+            onClick={() => downloadCsv('evaluation_report.csv', buildShortlistCsv(teams, adminNames))}
+            disabled={teams.length === 0}
           >
-            <Download size={14} /> Download Shortlist CSV
+            <Download size={14} /> Download Evaluation CSV
           </button>
           <button
             type="button"
