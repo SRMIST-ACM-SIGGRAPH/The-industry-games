@@ -244,13 +244,21 @@ export function buildShortlistCsv(
 
   for (const t of teams.filter((team) => statusOf(team) === 'shortlisted')) {
     const leader = leaderOf(t);
-    const members = t.members.length > 0 ? t.members : [undefined];
-
     const evaluatedBy = t.shortlisted_by
       ? adminNames[t.shortlisted_by] ?? 'Unknown admin'
       : '';
 
-    for (const m of members) {
+    // The leader already has their own columns, so list only the other members, once each.
+    const seen = new Set<string>();
+    const others = t.members.filter((m) => {
+      if (m.id === t.leader_id || seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+    // A solo or leader-only team still gets one row, with the member columns blank.
+    const rows = others.length > 0 ? others : [undefined];
+
+    for (const m of rows) {
       lines.push(
         [
           t.name,
