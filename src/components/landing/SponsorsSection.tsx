@@ -242,7 +242,7 @@ export default function SponsorsSection() {
                       <img
                         src={sponsor.logo}
                         alt={`${sponsor.name} Logo`}
-                        className="sponsor-logo-img"
+                        className={`sponsor-logo-img sponsor-logo-${sponsor.id}`}
                         loading="lazy"
                       />
                     </div>

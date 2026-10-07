@@ -40,6 +40,7 @@ export default function EvaluationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [search, setSearch] = useState('');
   const [authToken, setAuthToken] = useState('');
   const [adminId, setAdminId] = useState('');
   const [evaluating, setEvaluating] = useState<EvalTeam | null>(null);
@@ -50,7 +51,7 @@ export default function EvaluationPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [announced, setAnnounced] = useState(false);
 
-  // Announcement gate: opens once the submission deadline (Oct 7, 23:59:59 IST) passes.
+  // Announcement gate: opens once the submission deadline (Oct 8, 17:00:00 IST) passes.
   useEffect(() => {
     const check = () => setUnlocked(Date.now() >= new Date(EVENT_DEADLINE).getTime());
     check();
@@ -99,7 +100,18 @@ export default function EvaluationPage() {
 
   const shortlisted = useMemo(() => teams.filter((t) => statusOf(t) === 'shortlisted'), [teams]);
   const detailsTeam = teams.find((t) => t.id === detailsId) ?? null;
-  const visible = teams.filter((t) => matches(t, filter));
+  const visible = teams.filter((t) => {
+    if (!matches(t, filter)) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      return (
+        t.name.toLowerCase().includes(q) ||
+        t.team_code.toLowerCase().includes(q) ||
+        (t.problem_statement ?? '').toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
 
   const handleAnnounce = async () => {
     const pending = teams.filter((t) => t.is_submitted && statusOf(t) === 'pending').length;
@@ -166,8 +178,16 @@ export default function EvaluationPage() {
         </div>
       </section>
 
-      <div className="eval-filters" role="tablist" aria-label="Filter by status">
-        {FILTERS.map((f) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+        <input 
+          type="text" 
+          placeholder="Search by team name, code, or district..." 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(0, 0, 0, 0.2)', color: '#fff', fontSize: '0.95rem', outline: 'none' }}
+        />
+        <div className="eval-filters" role="tablist" aria-label="Filter by status">
+          {FILTERS.map((f) => (
           <button
             key={f}
             type="button"
@@ -179,6 +199,7 @@ export default function EvaluationPage() {
             {f === 'unsubmitted' ? 'not submitted' : f} ({teams.filter((t) => matches(t, f)).length})
           </button>
         ))}
+      </div>
       </div>
 
       <div className="admin-panel" style={{ padding: '1rem', overflowX: 'auto' }}>
