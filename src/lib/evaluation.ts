@@ -228,54 +228,38 @@ export function buildShortlistCsv(
   teams: EvalTeam[],
   adminNames: Record<string, string>
 ): string {
-  const header = [
-    'Team Name',
-    'District',
-    'Team Leader Name',
-    'Team Leader Registration Number',
-    'Team Leader Email',
-    'Member Name',
-    'Member Registration Number',
-    'Member Email',
-    'Evaluated By',
-  ];
+  const shortlisted = teams.filter((team) => statusOf(team) === 'shortlisted');
 
-  const lines: string[] = [];
-
-  for (const t of teams.filter((team) => statusOf(team) === 'shortlisted')) {
-    const leader = leaderOf(t);
-    const evaluatedBy = t.shortlisted_by
-      ? adminNames[t.shortlisted_by] ?? 'Unknown admin'
-      : '';
-
-    // The leader already has their own columns, so list only the other members, once each.
+  // Members other than the leader, each person once.
+  const othersOf = (t: EvalTeam) => {
     const seen = new Set<string>();
-    const others = t.members.filter((m) => {
+    return t.members.filter((m) => {
       if (m.id === t.leader_id || seen.has(m.id)) return false;
       seen.add(m.id);
       return true;
     });
-    // A solo or leader-only team still gets one row, with the member columns blank.
-    const rows = others.length > 0 ? others : [undefined];
+  };
 
-    for (const m of rows) {
-      lines.push(
-        [
-          t.name,
-          t.problem_statement ?? '',
-          leader?.full_name ?? '',
-          leader?.registration_number ?? '',
-          leader?.college_email ?? '',
-          m?.full_name ?? '',
-          m?.registration_number ?? '',
-          m?.college_email ?? '',
-          evaluatedBy,
-        ]
-          .map(csvCell)
-          .join(',')
-      );
-    }
+  // Only create as many Member N columns as the biggest shortlisted team needs.
+  const memberSlots = Math.max(1, ...shortlisted.map((t) => othersOf(t).length));
+
+  const header = ['Team Name', 'District', 'Team Leader Name', 'Team Leader Registration Number', 'Team Leader Email'];
+  for (let i = 1; i <= memberSlots; i++) {
+    header.push(`Member ${i} Name`, `Member ${i} Registration Number`, `Member ${i} Email`);
   }
+  header.push('Evaluated By');
+
+  const lines = shortlisted.map((t) => {
+    const leader = leaderOf(t);
+    const others = othersOf(t);
+    const row = [t.name, t.problem_statement ?? '', leader?.full_name ?? '', leader?.registration_number ?? '', leader?.college_email ?? ''];
+    for (let i = 0; i < memberSlots; i++) {
+      const m = others[i];
+      row.push(m?.full_name ?? '', m?.registration_number ?? '', m?.college_email ?? '');
+    }
+    row.push(t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Unknown admin' : '');
+    return row.map(csvCell).join(',');
+  });
 
   return [header.map(csvCell).join(','), ...lines].join('\r\n');
 }
