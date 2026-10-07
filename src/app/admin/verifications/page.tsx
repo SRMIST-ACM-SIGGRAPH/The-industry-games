@@ -25,7 +25,10 @@ import {
   transitionTeam,
 } from '@/lib/evaluation';
 
-const FILTERS: ('all' | EvalStatus)[] = ['all', 'pending', 'staged', 'shortlisted', 'rejected'];
+type Filter = 'all' | 'unsubmitted' | EvalStatus;
+const FILTERS: Filter[] = ['all', 'unsubmitted', 'pending', 'staged', 'shortlisted', 'rejected'];
+const matches = (t: EvalTeam, f: Filter) =>
+  f === 'all' ? true : f === 'unsubmitted' ? !t.is_submitted : t.is_submitted && statusOf(t) === f;
 
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) : '';
@@ -36,7 +39,7 @@ export default function EvaluationPage() {
   const [adminNames, setAdminNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | EvalStatus>('all');
+  const [filter, setFilter] = useState<Filter>('all');
   const [authToken, setAuthToken] = useState('');
   const [adminId, setAdminId] = useState('');
   const [evaluating, setEvaluating] = useState<EvalTeam | null>(null);
@@ -96,10 +99,10 @@ export default function EvaluationPage() {
 
   const shortlisted = useMemo(() => teams.filter((t) => statusOf(t) === 'shortlisted'), [teams]);
   const detailsTeam = teams.find((t) => t.id === detailsId) ?? null;
-  const visible = teams.filter((t) => filter === 'all' || statusOf(t) === filter);
+  const visible = teams.filter((t) => matches(t, filter));
 
   const handleAnnounce = async () => {
-    const pending = teams.filter((t) => statusOf(t) === 'pending').length;
+    const pending = teams.filter((t) => t.is_submitted && statusOf(t) === 'pending').length;
     const msg =
       `Announce results to all tributes?\n\n${shortlisted.length} shortlisted. ` +
       (pending > 0 ? `${pending} team(s) are still unevaluated and will see no result yet.\n\n` : '\n') +
@@ -173,7 +176,7 @@ export default function EvaluationPage() {
             className={`eval-filter ${filter === f ? 'eval-filter-active' : ''}`}
             onClick={() => setFilter(f)}
           >
-            {f} ({f === 'all' ? teams.length : teams.filter((t) => statusOf(t) === f).length})
+            {f === 'unsubmitted' ? 'not submitted' : f} ({teams.filter((t) => matches(t, f)).length})
           </button>
         ))}
       </div>
@@ -208,7 +211,13 @@ export default function EvaluationPage() {
                       </div>
                     ))}
                   </td>
-                  <td><span className={`eval-badge eval-badge-${s}`}>{s}</span></td>
+                  <td>
+                    {team.is_submitted ? (
+                      <span className={`eval-badge eval-badge-${s}`}>{s}</span>
+                    ) : (
+                      <span className="eval-badge">not submitted</span>
+                    )}
+                  </td>
                   <td className="eval-sub">
                     {s === 'rejected' && <div>Rejected by {who(rejectedBy(team)) ?? 'Unknown admin'}</div>}
                     {s !== 'rejected' && team.staged_by && <div>Staged by {who(team.staged_by)} · {fmt(team.staged_at)}</div>}
@@ -216,12 +225,12 @@ export default function EvaluationPage() {
                     {s === 'pending' && '—'}
                   </td>
                   <td>
-                    {team.submission_url ? (
+                    {team.is_submitted && team.submission_url ? (
                       <button type="button" className="btn btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }} onClick={() => setEvaluating(team)}>
                         <Eye size={14} /> Evaluate
                       </button>
                     ) : (
-                      <span className="eval-sub">No deck</span>
+                      <span className="eval-sub">Not submitted</span>
                     )}
                   </td>
                 </tr>
