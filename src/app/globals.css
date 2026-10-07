@@ -1382,11 +1382,16 @@ select.input-field { appearance: none; cursor: pointer; }
 .sponsor-logo-hamdard { transform: scale(1.6); }
 .sponsor-card:hover .sponsor-logo-hamdard { transform: scale(1.7); }
 
-.sponsor-logo-rooh-afza { transform: scale(1.6); }
-.sponsor-card:hover .sponsor-logo-rooh-afza { transform: scale(1.7); }
+.sponsor-logo-rooh-afza { transform: scale(1.9); }
+.sponsor-card:hover .sponsor-logo-rooh-afza { transform: scale(2.0); }
 
-.sponsor-logo-atom-talk { transform: scale(1.5); }
-.sponsor-card:hover .sponsor-logo-atom-talk { transform: scale(1.6); }
+.sponsor-logo-atom-talk { 
+  transform: scale(1.1);
+  background-color: #ffffff;
+  padding: 6px;
+  border-radius: 6px;
+}
+.sponsor-card:hover .sponsor-logo-atom-talk { transform: scale(1.2); }
 
 /* Info */
 .sponsor-info {

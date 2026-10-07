@@ -107,7 +107,11 @@ export default function EvaluationPage() {
       return (
         t.name.toLowerCase().includes(q) ||
         t.team_code.toLowerCase().includes(q) ||
-        (t.problem_statement ?? '').toLowerCase().includes(q)
+        (t.problem_statement ?? '').toLowerCase().includes(q) ||
+        t.members.some(m => 
+          (m.full_name ?? '').toLowerCase().includes(q) || 
+          (m.registration_number ?? '').toLowerCase().includes(q)
+        )
       );
     }
     return true;
