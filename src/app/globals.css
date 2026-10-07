@@ -1378,6 +1378,16 @@ select.input-field { appearance: none; cursor: pointer; }
   transform: scale(1.06);
 }
 
+/* Specific Logo Sizing Fixes (Compensating for intrinsic padding) */
+.sponsor-logo-hamdard { transform: scale(1.6); }
+.sponsor-card:hover .sponsor-logo-hamdard { transform: scale(1.7); }
+
+.sponsor-logo-rooh-afza { transform: scale(1.6); }
+.sponsor-card:hover .sponsor-logo-rooh-afza { transform: scale(1.7); }
+
+.sponsor-logo-atom-talk { transform: scale(1.5); }
+.sponsor-card:hover .sponsor-logo-atom-talk { transform: scale(1.6); }
+
 /* Info */
 .sponsor-info {
   display: flex;

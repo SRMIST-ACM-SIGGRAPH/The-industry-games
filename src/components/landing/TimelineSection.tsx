@@ -14,7 +14,7 @@ export const TIMELINE_EVENTS = [
   {
     id: 2,
     phase: 'Phase 02',
-    date: 'Oct 07',
+    date: 'Oct 08',
     event: 'Training Center (Registration Closes)',
     subtitle: 'Alliance Lockdown & Final Team Submission',
   },
