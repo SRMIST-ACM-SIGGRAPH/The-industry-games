@@ -228,7 +228,13 @@ export function buildShortlistCsv(
   teams: EvalTeam[],
   adminNames: Record<string, string>
 ): string {
-  const shortlisted = teams.filter((team) => statusOf(team) === 'shortlisted');
+  // Order: shortlisted, pending (submitted, undecided or staged), not submitted, rejected.
+  const included = [
+    ...teams.filter((t) => t.is_submitted && statusOf(t) === 'shortlisted'),
+    ...teams.filter((t) => t.is_submitted && (statusOf(t) === 'pending' || statusOf(t) === 'staged')),
+    ...teams.filter((t) => !t.is_submitted),
+    ...teams.filter((t) => t.is_submitted && statusOf(t) === 'rejected'),
+  ];
 
   // Members other than the leader, each person once.
   const othersOf = (t: EvalTeam) => {
@@ -239,6 +245,38 @@ export function buildShortlistCsv(
       return true;
     });
   };
+
+  // Only create as many Member N columns as the biggest team needs.
+  const memberSlots = Math.max(1, ...included.map((t) => othersOf(t).length));
+
+  const header = ['Team Name', 'District', 'Team Leader Name', 'Team Leader Registration Number', 'Team Leader Email'];
+  for (let i = 1; i <= memberSlots; i++) {
+    header.push(`Member ${i} Name`, `Member ${i} Registration Number`, `Member ${i} Email`);
+  }
+  header.push('Evaluated By');
+
+  const evaluatedBy = (t: EvalTeam): string => {
+    if (!t.is_submitted) return 'Not submitted';
+    const s = statusOf(t);
+    if (s === 'shortlisted') return t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Unknown admin' : '';
+    if (s === 'rejected') return 'Rejected';
+    return 'Pending';
+  };
+
+  const lines = included.map((t) => {
+    const leader = leaderOf(t);
+    const others = othersOf(t);
+    const row = [t.name, t.problem_statement ?? '', leader?.full_name ?? '', leader?.registration_number ?? '', leader?.college_email ?? ''];
+    for (let i = 0; i < memberSlots; i++) {
+      const m = others[i];
+      row.push(m?.full_name ?? '', m?.registration_number ?? '', m?.college_email ?? '');
+    }
+    row.push(evaluatedBy(t));
+    return row.map(csvCell).join(',');
+  });
+
+  return [header.map(csvCell).join(','), ...lines].join('\r\n');
+}
 
   // Only create as many Member N columns as the biggest shortlisted team needs.
   const memberSlots = Math.max(1, ...shortlisted.map((t) => othersOf(t).length));
@@ -257,9 +295,15 @@ export function buildShortlistCsv(
       const m = others[i];
       row.push(m?.full_name ?? '', m?.registration_number ?? '', m?.college_email ?? '');
     }
-    row.push(t.shortlisted_by ? adminNames[t.shortlisted_by] ?? 'Unknown admin' : '');
-    return row.map(csvCell).join(',');
-  });
+    row.push(
+      !t.is_submitted
+        ? 'Not submitted'
+        : statusOf(t) === 'shortlisted'
+        ? t.shortlisted_by
+          ? adminNames[t.shortlisted_by] ?? 'Unknown admin'
+          : ''
+        : 'Pending'
+    );
 
   return [header.map(csvCell).join(','), ...lines].join('\r\n');
 }
