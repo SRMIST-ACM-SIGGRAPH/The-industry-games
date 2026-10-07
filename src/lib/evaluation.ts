@@ -22,6 +22,7 @@ export interface EvalTeam {
   leader_id: string;
   problem_statement: string | null;
   submission_url: string | null;
+  is_submitted: boolean;
   status: EvalStatus; // derived from the audit columns (no status column in ig_teams)
   staged_by: string | null;
   staged_at: string | null;
@@ -79,7 +80,6 @@ export async function fetchEvaluationData(): Promise<EvaluationData> {
   const { data: teamRows, error: teamErr } = await supabase
     .from('ig_teams')
     .select('*')
-    .eq('is_submitted', true)
     .order('created_at', { ascending: true });
   if (teamErr) throw teamErr;
 
@@ -116,6 +116,7 @@ export async function fetchEvaluationData(): Promise<EvaluationData> {
     leader_id: t.leader_id,
     problem_statement: t.problem_statement ?? null,
     submission_url: t.submission_url ?? null,
+    is_submitted: !!t.is_submitted,
     status: deriveStatus(t),
     staged_by: t.staged_by ?? null,
     staged_at: t.staged_at ?? null,
@@ -136,6 +137,7 @@ export async function transitionTeam(
   to: EvalStatus,
   adminId: string
 ): Promise<Partial<EvalTeam>> {
+  if (!team.is_submitted) throw new Error('Only submitted teams can be evaluated.');
   const from = statusOf(team);
   if (!TRANSITIONS[from].includes(to)) {
     throw new Error(`Transition ${from} → ${to} is not allowed.`);

@@ -40,11 +40,17 @@ export default function TeamDetailsModal({ team, inspectorOpen, onViewProfile, o
           </div>
           <div className="inspector-row">
             <dt>Status</dt>
-            <dd><span className={`eval-badge eval-badge-${status}`}>{status}</span></dd>
+            <dd>
+              {team.is_submitted ? (
+                <span className={`eval-badge eval-badge-${status}`}>{status}</span>
+              ) : (
+                <span className="eval-badge">not submitted</span>
+              )}
+            </dd>
           </div>
           <div className="inspector-row">
             <dt>Presentation</dt>
-            <dd>{team.submission_url ? 'Available — use Evaluate to review' : <span className="inspector-empty">No presentation uploaded</span>}</dd>
+            <dd>{team.is_submitted && team.submission_url ? 'Available — use Evaluate to review' : <span className="inspector-empty">{team.is_submitted ? 'No presentation uploaded' : 'Not submitted yet'}</span>}</dd>
           </div>
         </dl>
 
