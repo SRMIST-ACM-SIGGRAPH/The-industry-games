@@ -14,6 +14,7 @@ const MEALS = ['Day1_Lunch', 'Day1_Dinner', 'Day2_Breakfast', 'Day2_Lunch'];
 export default function LogisticsPage() {
   const status = useAdminGuard();
   const [teams, setTeams] = useState<EvalTeam[]>([]);
+  const [adminNames, setAdminNames] = useState<Record<string, string>>({});
   const [attendanceMap, setAttendanceMap] = useState<Record<string, AttendanceRecord>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +26,10 @@ export default function LogisticsPage() {
 
   const load = useCallback(async () => {
     try {
-      const { teams } = await fetchEvaluationData();
+      const { teams, adminNames } = await fetchEvaluationData();
       const shortlistedTeams = teams.filter(t => statusOf(t) === 'shortlisted');
       setTeams(shortlistedTeams);
+      setAdminNames(adminNames);
 
       const attendance = await fetchAttendance(currentDate);
       setAttendanceMap(attendance);
@@ -79,6 +81,8 @@ export default function LogisticsPage() {
       setBusy(false);
     }
   };
+
+  const who = (id: string | null | undefined) => (id ? adminNames[id] ?? 'Unknown admin' : null);
 
   if (status === 'loading' || status === 'unauthenticated' || loading) return <LoadingPanel />;
   if (status === 'forbidden') return <ForbiddenPanel />;
@@ -134,23 +138,30 @@ export default function LogisticsPage() {
                       <div className="eval-sub">{m.registration_number}</div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                          className={`btn ${isPresent ? 'btn-primary' : ''}`}
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
-                          onClick={() => handleMarkAttendance(team.id, m.id, 'Present')}
-                          disabled={busy}
-                        >
-                          <Check size={14} /> Present
-                        </button>
-                        <button 
-                          className={`btn ${record?.status === 'Absent' ? 'btn-primary' : ''}`}
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', background: record?.status === 'Absent' ? '#e74c3c' : undefined }}
-                          onClick={() => handleMarkAttendance(team.id, m.id, 'Absent')}
-                          disabled={busy}
-                        >
-                          <X size={14} /> Absent
-                        </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            className={`btn ${isPresent ? 'btn-primary' : ''}`}
+                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
+                            onClick={() => handleMarkAttendance(team.id, m.id, 'Present')}
+                            disabled={busy}
+                          >
+                            <Check size={14} /> Present
+                          </button>
+                          <button 
+                            className={`btn ${record?.status === 'Absent' ? 'btn-primary' : ''}`}
+                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', background: record?.status === 'Absent' ? '#e74c3c' : undefined }}
+                            onClick={() => handleMarkAttendance(team.id, m.id, 'Absent')}
+                            disabled={busy}
+                          >
+                            <X size={14} /> Absent
+                          </button>
+                        </div>
+                        {record && (
+                          <div className="eval-sub" style={{ fontSize: '0.7rem' }}>
+                            Marked by: {who(record.updated_by)}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td>
@@ -173,8 +184,17 @@ export default function LogisticsPage() {
                                 disabled={busy || !!served}
                                 title={served ? `Served at ${new Date(served.served_at).toLocaleTimeString()}` : `Serve ${meal}`}
                               >
-                                <Utensils size={12} style={{ marginRight: '4px' }} />
-                                {meal.replace('_', ' ')}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {!served && <Utensils size={12} style={{ marginRight: '4px' }} />}
+                                    {meal.replace('_', ' ')}
+                                  </div>
+                                  {served && (
+                                    <span style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '2px' }}>
+                                      by {who(served.served_by)}
+                                    </span>
+                                  )}
+                                </div>
                               </button>
                             );
                           })}
