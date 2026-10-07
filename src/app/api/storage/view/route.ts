@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const fileName = url.searchParams.get('key') ?? url.searchParams.get('fileName');
-    const token = url.searchParams.get('token');
+    const bearer = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? null;
+    const token = url.searchParams.get('token') ?? bearer;
     
     if (!fileName) {
       return NextResponse.json({ error: 'Missing key' }, { status: 400 });
@@ -65,6 +66,12 @@ export async function GET(req: NextRequest) {
 
     // Generate the presigned View URL
     const viewUrl = await generateViewUrl(fileName);
+
+    // json=1 lets the admin viewer get the short-lived URL without putting the
+    // user's access token into a URL that a third party (Google) would fetch.
+    if (url.searchParams.get('json') === '1') {
+      return NextResponse.json({ url: viewUrl });
+    }
 
     return NextResponse.redirect(viewUrl);
   } catch (error: any) {

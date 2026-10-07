@@ -22,6 +22,8 @@ const ACTION_LABELS: Record<EvalStatus, string> = {
 // Mount with key={team.id} so the onLoad guard resets for every team.
 export default function PresentationViewerModal({ team, authToken, busy, onTransition, onClose }: Props) {
   const [loaded, setLoaded] = useState(false);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const status = statusOf(team);
 
   useEffect(() => {
@@ -30,8 +32,25 @@ export default function PresentationViewerModal({ team, authToken, busy, onTrans
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const streamUrl = `${window.location.origin}/api/storage/view?key=${encodeURIComponent(team.submission_url ?? '')}&token=${encodeURIComponent(authToken)}`;
-  const viewerUrl = `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(streamUrl)}`;
+  // Ask our authenticated endpoint for a short-lived R2 URL, then hand only that
+  // URL to Google's viewer (it cannot reach auth-protected or preview-protected pages).
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/storage/view?key=${encodeURIComponent(team.submission_url ?? '')}&json=1`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    })
+      .then(async (res) => {
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.url) throw new Error(body.error ?? `Request failed (${res.status})`);
+        if (active) setFileUrl(body.url);
+      })
+      .catch((err) => active && setLoadError(err.message));
+    return () => {
+      active = false;
+    };
+  }, [team.submission_url, authToken]);
+
+  const viewerUrl = fileUrl ? `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(fileUrl)}` : null;
 
   return (
     <div className="eval-overlay" role="dialog" aria-modal="true" aria-label={`Evaluate ${team.name}`}>
@@ -44,23 +63,32 @@ export default function PresentationViewerModal({ team, authToken, busy, onTrans
         </div>
 
         <div className="viewer-stream-note">
-          {loaded ? (
-            <span>Document loaded.</span>
+          {loadError ? (
+            <span style={{ color: '#e74c3c' }}>Could not stream the document: {loadError}</span>
+          ) : loaded ? (
+            <span>Document loaded. If the preview is blank, use Open file directly.</span>
           ) : (
             <span><Loader2 size={14} className="spinning-icon" /> Document streaming from R2... Please view before staging.</span>
           )}
         </div>
 
         <div className="viewer-frame-wrap">
-          <iframe
-            src={viewerUrl}
-            title={`${team.name} presentation`}
-            className="viewer-frame"
-            onLoad={() => setLoaded(true)}
-          />
+          {viewerUrl && (
+            <iframe
+              src={viewerUrl}
+              title={`${team.name} presentation`}
+              className="viewer-frame"
+              onLoad={() => setLoaded(true)}
+            />
+          )}
         </div>
 
         <div className="viewer-footer">
+          {fileUrl && (
+            <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn" style={{ marginRight: 'auto' }}>
+              Open file directly
+            </a>
+          )}
           {TRANSITIONS[status].map((to) => {
             const isStage = to === 'staged';
             // Evaluation guard: staging stays locked until the iframe fires onLoad.
