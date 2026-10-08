@@ -60,11 +60,8 @@ export default function Login() {
     });
 
     if (signInError) {
-      if (closed) {
-        setError('Registrations have concluded. New tributes are not allowed to enter.');
-      } else {
-        setError(signInError.message);
-      }
+      // Always show real error - don't mask with registration closed message
+      setError(signInError.message);
     } else {
       setMessage('A secure transmission has been sent to your inbox. Check your email for the access code.');
       setStep('otp');
