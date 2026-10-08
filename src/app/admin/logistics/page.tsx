@@ -21,6 +21,11 @@ export default function LogisticsPage() {
   const [adminId, setAdminId] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [attFilter, setAttFilter] = useState<'All' | 'Present' | 'Absent' | 'Unmarked'>('All');
+  const FILTERS: ('All' | 'Present' | 'Absent' | 'Unmarked')[] = ['All', 'Present', 'Absent', 'Unmarked'];
+
   // Default to today's date (YYYY-MM-DD) for attendance tracking
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -84,6 +89,30 @@ export default function LogisticsPage() {
 
   const who = (id: string | null | undefined) => (id ? adminNames[id] ?? 'Unknown admin' : null);
 
+  const filteredTeams = teams.map(team => {
+    let matchingMembers = team.members.filter(m => {
+      const record = attendanceMap[m.id];
+      if (attFilter === 'Present') return record?.status === 'Present';
+      if (attFilter === 'Absent') return record?.status === 'Absent';
+      if (attFilter === 'Unmarked') return !record;
+      return true;
+    });
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const teamMatches = team.name.toLowerCase().includes(q) || team.team_code.toLowerCase().includes(q);
+      
+      if (!teamMatches) {
+        matchingMembers = matchingMembers.filter(m => 
+          m.full_name.toLowerCase().includes(q) || 
+          m.registration_number.toLowerCase().includes(q)
+        );
+      }
+    }
+
+    return { ...team, members: matchingMembers };
+  }).filter(team => team.members.length > 0);
+
   if (status === 'loading' || status === 'unauthenticated' || loading) return <LoadingPanel />;
   if (status === 'forbidden') return <ForbiddenPanel />;
 
@@ -107,6 +136,43 @@ export default function LogisticsPage() {
         />
       </div>
 
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+        <input 
+          type="text" 
+          placeholder="Search by team name, code, or member details..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: '100%', maxWidth: '400px', padding: '0.6rem 1rem', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(0, 0, 0, 0.2)', color: '#fff', fontSize: '0.95rem', outline: 'none' }}
+        />
+        <div className="eval-filters" role="tablist" aria-label="Filter by attendance">
+          {FILTERS.map((f) => {
+            let count = 0;
+            teams.forEach(team => {
+              team.members.forEach(m => {
+                const record = attendanceMap[m.id];
+                if (f === 'All') count++;
+                else if (f === 'Present' && record?.status === 'Present') count++;
+                else if (f === 'Absent' && record?.status === 'Absent') count++;
+                else if (f === 'Unmarked' && !record) count++;
+              });
+            });
+
+            return (
+              <button
+                key={f}
+                type="button"
+                role="tab"
+                aria-selected={attFilter === f}
+                className={`eval-filter ${attFilter === f ? 'eval-filter-active' : ''}`}
+                onClick={() => setAttFilter(f)}
+              >
+                {f} ({count})
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="admin-panel" style={{ padding: '1rem', overflowX: 'auto' }}>
         <table className="eval-table">
           <thead>
@@ -118,7 +184,7 @@ export default function LogisticsPage() {
             </tr>
           </thead>
           <tbody>
-            {teams.map((team) => (
+            {filteredTeams.map((team) => (
               team.members.map((m, idx) => {
                 const record = attendanceMap[m.id];
                 const isPresent = record?.status === 'Present';
@@ -207,7 +273,7 @@ export default function LogisticsPage() {
                 );
               })
             ))}
-            {teams.length === 0 && (
+            {filteredTeams.length === 0 && (
               <tr>
                 <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#aaa' }}>
                   No shortlisted teams found.
