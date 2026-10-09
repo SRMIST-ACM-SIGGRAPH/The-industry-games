@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { getProfile, isProfileComplete, Profile } from '@/lib/profile';
 import CountdownTimer from '@/components/CountdownTimer';
-import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL, isSubmissionClosed } from '@/lib/event';
+import { HACKATHON_END, HACKATHON_END_LABEL, isSubmissionClosed } from '@/lib/event';
 import AlliancePanel, { TeamView } from '@/components/dashboard/AlliancePanel';
 import SubmissionPanel from '@/components/dashboard/SubmissionPanel';
 import AnnouncementsPanel from '@/components/announcements/AnnouncementsPanel';
@@ -186,9 +186,9 @@ export default function Dashboard() {
       </header>
 
       <CountdownTimer
-        deadline={EVENT_DEADLINE}
+        deadline={HACKATHON_END}
         variant="compact"
-        label={EVENT_DEADLINE_LABEL}
+        label={HACKATHON_END_LABEL}
       />
 
       <div className="dashboard__grid">

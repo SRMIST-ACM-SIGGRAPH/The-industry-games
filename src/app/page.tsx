@@ -9,7 +9,7 @@ import CountdownTimer from '@/components/CountdownTimer';
 import TimelineSection from '@/components/landing/TimelineSection';
 import ProblemCardsSection from '@/components/landing/ProblemCardsSection';
 import SponsorsSection from '@/components/landing/SponsorsSection';
-import { EVENT_DEADLINE, EVENT_DEADLINE_LABEL, isRegistrationClosed } from '@/lib/event';
+import { HACKATHON_END, HACKATHON_END_LABEL, isRegistrationClosed } from '@/lib/event';
 
 export default function Home() {
   const lenis = useLenis();
@@ -111,9 +111,9 @@ export default function Home() {
             }}
           >
             <CountdownTimer
-              deadline={EVENT_DEADLINE}
+              deadline={HACKATHON_END}
               variant="hero"
-              label={EVENT_DEADLINE_LABEL}
+              label={HACKATHON_END_LABEL}
             />
           </motion.div>
 
